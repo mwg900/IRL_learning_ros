@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+    - Base      : kobuki
+    - Stacks    : hexagons
+    - 3d Sensor : asus
+    - 2d Laser  : rplidar
+-->    
+<robot name="turtlebot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find mobile_robot_sim)/urdf/turtlebot_library.urdf.xacro" />
+
+  <kobuki/>
+  <stack_hexagons                 parent="base_link"/>
+  <sensor_asus_xtion_pro          parent="base_link"/>
+  <sensor_rplidar                  parent="base_link"/>
+</robot>

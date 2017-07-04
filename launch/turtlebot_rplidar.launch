@@ -1,0 +1,45 @@
+<!-- 
+  gazebo mobile robot simulation: kobuki, asus, rplidar 2d laser
+-->
+<launch>
+
+  <!-- gazebo initial pose -->
+  <arg name="init_x" default="0" />  <!-- -2.0 -->
+  <arg name="init_y" default="0" />  <!-- -2.7 -->
+  <arg name="init_theta" default="0.0" /> <!-- 0.0 -->
+
+  <!-- gazebo setting for turtlbot -->
+  <arg name="base"        default="kobuki"/> <!-- create, roomba -->
+  <arg name="battery"     default="$(optenv TURTLEBOT_BATTERY /proc/acpi/battery/BAT0)"/>  <!-- /proc/acpi/battery/BAT0 --> 
+  <arg name="stacks"      default="hexagons"/>  <!-- circles, hexagons --> 
+  <arg name="3d_sensor"   value="asus"/>  <!-- asus_xtion_pro --> 
+  <arg name="2d_laser"    value="rplidar"/> <!-- rplidar 2d laser -->
+
+  <!-- include gazebo world -->
+
+  <arg name="world_file"  value="$(find mobile_robot_sim)/worlds/sim_simple.world"/>  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="world_name" value="$(arg world_file)"/>
+  </include>
+
+  <!-- Spawn master robot -->
+  <include file="$(find mobile_robot_sim)/launch/includes/$(arg base)_rplidar.launch.xml">
+    <arg name="base" value="$(arg base)"/>
+    <arg name="stacks" value="$(arg stacks)"/>
+    <arg name="3d_sensor" value="$(arg 3d_sensor)"/>
+    <arg name="2d_laser" value="$(arg 2d_laser)"/>
+    <arg name="x" value="$(arg init_x)"/>
+    <arg name="y" value="$(arg init_y)"/>
+    <arg name="theta" value="$(arg init_theta)"/> 
+  </include>
+
+  <!-- Spawn cylinder(slave) -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find mobile_robot_sim)/urdf/slave_cylinder.urdf -urdf -z 1 -model slave" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+</launch>
