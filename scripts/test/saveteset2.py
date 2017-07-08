@@ -65,7 +65,7 @@ def talker():
         
         # Running first session
         '''
-        '''
+        
         print("Starting 1st session...")
         with tf.Session() as sess:
             # Initialize variables
@@ -99,7 +99,7 @@ def talker():
             save_path = saver.save(sess, model_path)
             print("Model saved in file: %s" % save_path)
         '''
-        '''
+        
         
         # Running a new session
         print("Starting 2nd session...")
@@ -111,7 +111,7 @@ def talker():
             print("Model restored from file")
             
             '''
-            '''
+            
             # Resume training
             for epoch in range(7):
                 avg_cost = 0.
@@ -131,7 +131,7 @@ def talker():
             saver.save(sess, model_path)
             print("Second Optimization Finished!")
             '''
-            '''
+            
             # Test model
             correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
             # Calculate accuracy
