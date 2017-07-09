@@ -1,4 +1,3 @@
-float32 x
-flaot32 y
----
 bool flag
+---
+string res
