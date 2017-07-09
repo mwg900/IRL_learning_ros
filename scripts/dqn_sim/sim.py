@@ -13,7 +13,7 @@ class simulation_server:
         node_name = "sim_server" 
         rospy.init_node(node_name)
         s = rospy.Service('model_respawn', SpawnPos, self.model_respawn)
-        print "Ready to spwan the model."
+        print ("Ready to spwan the model.")
         
         
     #randomly selected spawn positon
@@ -32,21 +32,12 @@ class simulation_server:
     #spawn service 콜백 함수 (from spawn req)
     def model_respawn(self, srv):
         model_name = 'coke_can'
+        
         #res 요청이 들어왔을 시 실행
-        if srv.req is True:
-            #delete existing model
-            self.delete_model(model_name)
-            #System 명령어 호출
-            #"rosrun gazebo spawn_model -file <path to xml/urdf file> -urdf -model <model_name>"
-            x, y = self.rand_pos()
-            os.system("rosrun gazebo_ros spawn_model -database coke_can -gazebo -model {} -x {} -y {}".format(model_name, x, y))
-            res = 'model respawned at {:>3},{:>3}'.format(x,y)
-        else:
-            #delete model
-            # = os.system("rosservice call gazebo/delete_model '{model_name: coke_can}'")
-            self.delete_model(model_name)
-            res = 'model deleted'
-        return res
+        self.delete_model(model_name)           # delete existing model
+        x, y = self.rand_pos()                  # randomly selected spawn positon
+        os.system("rosrun gazebo_ros spawn_model -database coke_can -gazebo -model {} -x {} -y {}".format(model_name, x, y))     #System 명령어 호출 = "rosrun gazebo spawn_model -file <path to xml/urdf file> -urdf -model <model_name>"
+        return model_name, x, y
 
 if __name__ == "__main__":
     try:
