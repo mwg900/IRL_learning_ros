@@ -1,0 +1,32 @@
+<!---->
+<launch>
+  <!-- include gazebo world -->
+
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <!-- We resume the logic in empty_world.launch -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <!-- Spawn master robot 
+  <node name="spawn"	pkg="IRL_learning_ros"  type="sim.py" output="screen"/>-->
+  <include file="$(find IRL_learning_ros)/launch/includes/kobuki_rplidar.launch.xml"/>
+
+  <!-- Spawn cylinder(slave)-->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find mobile_robot_sim)/urdf/slave_cylinder.urdf -urdf -z 1 -model slave" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node> 
+
+</launch>
