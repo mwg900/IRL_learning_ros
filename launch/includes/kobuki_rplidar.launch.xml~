@@ -2,18 +2,19 @@
 <launch>
   <arg name="x" default="0.0" />
   <arg name="y" default="0.0" />
-  <arg name="theta" default="0.0" />
-  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find mobile_robot_sim)/urdf/kobuki_hexagons_asus_rplidar.urdf.xacro'" />
+  <arg name="theta" default="0.0" />  
+  <arg name="model_name" default="agent" />
+  <arg name="urdf_file" default="$(find xacro)/xacro.py '$(find IRL_learning_ros)/urdf/kobuki_hexagons_asus_rplidar.urdf.xacro'" />
   <param name="robot_description" command="$(arg urdf_file)" />
   
-  <!-- Gazebo model spawner -->
+ <!-- Gazebo model spawner -->
   <node name="spawn_turtlebot_model" pkg="gazebo_ros" type="spawn_model"
-        args="$(optenv ROBOT_INITIAL_POSE) -unpause -urdf -param robot_description -model master_base -x $(arg x) -y $(arg y) -Y $(arg theta)" />  
+        args="$(optenv ROBOT_INITIAL_POSE) -unpause -urdf -param robot_description -model $(arg model_name) -x $(arg x) -y $(arg y) -Y $(arg theta)" />  
+
 
   <!-- Velocity muxer -->
   <node pkg="nodelet" type="nodelet" name="mobile_base_nodelet_manager" args="manager"/>
-  <node pkg="nodelet" type="nodelet" name="cmd_vel_mux"
-        args="load yocs_cmd_vel_mux/CmdVelMuxNodelet mobile_base_nodelet_manager">
+  <node pkg="nodelet" type="nodelet" name="cmd_vel_mux" args="load yocs_cmd_vel_mux/CmdVelMuxNodelet mobile_base_nodelet_manager">
     <param name="yaml_cfg_file" value="$(find turtlebot_bringup)/param/mux.yaml" />
     <remap from="cmd_vel_mux/output" to="mobile_base/commands/velocity"/>
   </node>

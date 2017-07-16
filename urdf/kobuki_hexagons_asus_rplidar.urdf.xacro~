@@ -7,10 +7,13 @@
 -->    
 <robot name="turtlebot" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/turtlebot_library.urdf.xacro" />
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/turtlebot_library.urdf.xacro" />
 
   <kobuki/>
   <stack_hexagons                 parent="base_link"/>
   <sensor_asus_xtion_pro          parent="base_link"/>
   <sensor_rplidar                 parent="base_link"/>
 </robot>
+
+
+
