@@ -11,8 +11,6 @@ from std_srvs.srv import Empty
 
 
 
-
-
 class simulation_server:
     def __init__(self): 
         node_name = "sim_server" 
@@ -24,8 +22,10 @@ class simulation_server:
         
     
     def rand_pos(self):    
-        x = random.uniform(-10.0, 10.0)
-        y = random.uniform(-10.0, 10.0)
+        #x = random.uniform(-10.0, 10.0)
+        #y = random.uniform(-10.0, 10.0)
+        x = 0
+        y = 0
         theta = random.uniform(-3.1415, 3.1415)
         return x, y, theta
         
@@ -33,7 +33,7 @@ class simulation_server:
     # spawn service 콜백 함수 (from spawn req)
     def model_respawn(self, srv):
         #res 요청이 들어왔을 시 실행
-        x, y, theta = self.rand_pos()                  # randomly selected spawn positon
+        x, y, theta = self.rand_pos()                  # randomly select spawn positon
         
         state = ModelState()
         state.model_name = 'agent'

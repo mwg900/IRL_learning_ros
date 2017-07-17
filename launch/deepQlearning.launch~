@@ -1,0 +1,6 @@
+<!---->
+<launch>
+  <!-- Spawn agent model >-->
+  <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py" output="screen"/
+  </node> 
+</launch>
