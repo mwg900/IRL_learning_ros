@@ -22,6 +22,8 @@
 
   <!-- include Deep Q-learning Network simulation -->
   <include file="$(find IRL_learning_ros)/launch/includes/deepQlearning.launch"/>
+
+
   <!-- Spawn cylinder(slave) 
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find mobile_robot_sim)/urdf/slave_cylinder.urdf -urdf -x 1 -y 1 -model slave" />-->
 
