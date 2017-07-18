@@ -15,9 +15,9 @@ class simulation_server:
     def __init__(self): 
         node_name = "sim_server" 
         rospy.init_node(node_name)
-        s = rospy.Service('model_respawn', SpawnPos, self.model_respawn)
-        self.reset   = rospy.ServiceProxy('gazebo/reset_world', Empty)
-        self.set_pos = rospy.ServiceProxy('gazebo/set_model_state', SetModelState)
+        rospy.Service('model_respawn', SpawnPos, self.model_respawn)
+        self.reset   = rospy.ServiceProxy('gazebo/reset_world', Empty)            # World reset 서비스 요청 함수 선언
+        self.set_pos = rospy.ServiceProxy('gazebo/set_model_state', SetModelState)# Model state set 서비스 요청 함수 선언
         print ("Ready to spwan the model.")
         
     

@@ -1,5 +1,0 @@
-bool req
----
-string model
-float32 x
-float32 y
