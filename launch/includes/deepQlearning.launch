@@ -1,5 +1,7 @@
 <!---->
 <launch>
   <!-- simulation model manage node >-->
-  <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py" output="screen"/>
+  <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py"/>
+  <!-- training node >-->
+  <node name="driving_train"	pkg="IRL_learning_ros"  type="driving_train.py" output="screen"/>
 </launch>
