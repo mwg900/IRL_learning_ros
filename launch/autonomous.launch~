@@ -35,6 +35,6 @@
   </node> 
 	<!--
   <node pkg="IRL_learning_ros" type="agent_state_publisher.py" name="agent_state_publisher" output="screen">>
-  </node> 
+  </node> -->
 
 </launch>

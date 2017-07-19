@@ -33,8 +33,7 @@
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="30.0" /> 
   </node> 
-	<!--
   <node pkg="IRL_learning_ros" type="agent_state_publisher.py" name="agent_state_publisher" output="screen">>
-  </node> -->
+  </node>
 
 </launch>

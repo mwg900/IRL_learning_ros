@@ -24,7 +24,7 @@ class state_pub:
         self.range_state = []
         for ang in range(115,256,15):    #-75도 ~ 75도를 15도 간격마다 확인
             self.range_state.append(LaserScan.ranges[ang])
-            if LaserScan.ranges[ang] < 0.21:
+            if LaserScan.ranges[ang] < 0.21:        # 인식 거리가 21cm 미만일 시 (충돌)
                 self.respawn()
                 self.done = True
 
