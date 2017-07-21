@@ -29,12 +29,11 @@
   <!-- Spawn cylinder(slave) 
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find mobile_robot_sim)/urdf/slave_cylinder.urdf -urdf -x 1 -y 1 -model slave" />-->
 
-  <!-- run nodes -->
+  <!-- run nodes 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="30.0" /> 
-  </node> 
-	<!--
-  <node pkg="IRL_learning_ros" type="agent_state_publisher.py" name="agent_state_publisher" output="screen">>
-  </node> 
+  </node>-->
+  <node pkg="IRL_learning_ros" type="agent_state_publisher.py" name="agent_state_publisher"/>
+  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>
 
 </launch>

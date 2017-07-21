@@ -18,16 +18,20 @@ class state_pub:
         self.F = False
     #Laser 토픽 콜백
     def scan_callback(self, LaserScan):
-        self.F = True
+        
         #topic 복사
         self.done = False
-        self.range_state = []
-        for ang in range(115,256,15):    #-75도 ~ 75도를 15도 간격마다 확인
-            self.range_state.append(LaserScan.ranges[ang])
-            if LaserScan.ranges[ang] < 0.21:
+        tmp_state = []
+        for ang in range(120,241,15):    #-75도 ~ 75도를 15도 간격마다 확인
+            tmp_state.append(LaserScan.ranges[ang])
+            if ang == 240:               # 루프문이 끝날 시에만 값 할당
+                self.range_state = tmp_state
+    
+            if LaserScan.ranges[ang] < 0.21:        # 인식 거리가 21cm 미만일 시 (충돌)
                 self.respawn()
                 self.done = True
-
+        self.F = True
+        
     def talker(self):
         while not rospy.is_shutdown():
             if self.F is True:
@@ -35,7 +39,7 @@ class state_pub:
                 msg.ranges = self.range_state
                 msg.done = self.done
                 self.pub.publish(msg)
-            self.rate.sleep()
+            #self.rate.sleep()
      
 if __name__ == '__main__':
     try:
