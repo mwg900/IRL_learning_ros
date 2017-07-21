@@ -26,13 +26,13 @@ class state_pub:
     def action_callback(self, msg):
         #self.motor_pub(MotorPower.ON)
         vel = Twist()
-        if msg.data == 1: #직진
+        if msg.data == 0: #직진
             vel.linear.x = 0.8
-        elif msg.data == 2: #우회전
-            vel.linear.x = 0.5
+        elif msg.data == 1: #우회전
+            vel.linear.x = 0.7
             vel.angular.z = -1.0
-        elif msg.data == 3: #좌회전
-            vel.linear.x = 0.5
+        elif msg.data == 2: #좌회전
+            vel.linear.x = 0.7
             vel.angular.z = 1.0
         self.vel_pub.publish(vel)   #속도값 퍼블리시
         

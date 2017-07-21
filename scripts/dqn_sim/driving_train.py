@@ -59,60 +59,25 @@ class state_pub:
 
 
     def train_minibatch(self, DQN, train_batch):
-        """Prepare X_batch, y_batch and train them
-        Recall our loss function is
-            target = reward + discount * max Q(s',a)
-                     or reward if done early
-            Loss function: [target - Q(s, a)]^2
-        Hence,
-            X_batch is a state list
-            y_batch is reward + discount * max Q
-                       or reward if terminated early
-        Args:
-            DQN (dqn.DQN): DQN Agent to train & run
-            train_batch (list): Minibatch of Replay memory
-                Eeach element is a tuple of (s, a, r, s', done)
-        Returns:
-            loss: Returns a loss
+
+        state_array = np.vstack([x[0] for x in train_batch])        #state 배열     [[64][input_size]]
+        action_array = np.array([x[1] for x in train_batch])        #action 배열    [[64][output_size]]
+        reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[64][1]]
+        next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[64][input_size]]
+        done_array = np.array([x[4] for x in train_batch])          #done 배열      [[64][1]]
         
-        state_array = np.vstack([x[0] for x in train_batch])
-        action_array = np.array([x[1] for x in train_batch])
-        reward_array = np.array([x[2] for x in train_batch])
-        next_state_array = np.vstack([x[3] for x in train_batch])
-        done_array = np.array([x[4] for x in train_batch])
-        X_batch = state_array
+        X_batch = state_array               #state 배열     [[64][9]]
         y_batch = DQN.predict(state_array)
         
         
         
         Q_target = reward_array + DISCOUNT_RATE * np.max(DQN.predict(next_state_array), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
         y_batch[np.arange(len(X_batch)), action_array] = Q_target
-    
+        
         # Train our network using target and predicted Q values on each episode
         loss, _ = DQN.update(X_batch, y_batch)
-    
         return loss
-        """
-        X_batch = np.empty(0).reshape(0, DQN.input_size)
-        y_batch = np.empty(0).reshape(0, DQN.output_size)
-            
-        # get stored information from the buffer
-        for state, action, reward, next_state, done in train_batch:
-            Q = DQN.predict(state)          # 여기서 Q = Qpred = Wx
-            
-            # terminal?
-            if done:
-                Q[0, action] = reward
-            else:
-                # Network로 부터 다음 상태의 Qpred(Qs1)값을 얻어 현재의 Q값 업데이트
-                Q[0, action] = reward + DISCOUNT_RATE * np.max(DQN.predict(next_state))
-    
-            y_batch = np.vstack([y_batch, Q])
-            X_batch = np.vstack([X_batch, state])
-            
-        loss, _ = DQN.update(X_batch, y_batch)
-        return loss
-    
+
     
     
     def talker(self):
@@ -130,44 +95,43 @@ class state_pub:
                     for episode in range(MAX_EPISODE):
                         e = 1. / ((episode / 10) + 1)
                         done = False
-                        state = self.state
                         reward_sum = 0
                         frame_count = 0
                         
                         # The DQN traning
                         while not done:
                             frame_count += 1
-                            if np.random.rand() < e:
-                                action = random.randrange(1,OUTPUT_SIZE+1)
+                            state = self.state
+                            if np.random.rand() < 0:
+                                action = random.randrange(0,OUTPUT_SIZE)
                             else:
-                                action = np.argmax(mainDQN.predict(state))
-                        
+                                try:
+                                    action = np.argmax(mainDQN.predict(state))
+                                except:
+                                    print('error, state is {}'.format(state))
+                                    
                             self.pub.publish(action)            #액션 값 퍼블리시
                             self.rate.sleep()           #ROS sleep
                             
                             next_state = self.state
                             done = self.done
                             # Reward Policy
-                            if action is 1:
+                            if action == 0:
                                 reward = 5
-                            elif action is 2 or 3:
+                            elif (action == 1) or (action == 2):
                                 reward = 1
                             if done:            # 충돌  
                                 reward = -200
-                
+
                             replay_buffer.append((state, action, reward, next_state, done))
                             #print(replay_buffer)
                             state = next_state
-                            
-                                
+                            reward_sum += reward
                             if len(replay_buffer) > BATCH_SIZE:
                                 minibatch = random.sample(replay_buffer, BATCH_SIZE)
-                                self.train_minibatch(mainDQN, minibatch)
-                            
-                            reward_sum += reward
-        
+                                loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
+                            print("action : {:>5}, current reward : {:>5}".format(action, reward_sum))
                         print("[episode {:>5}] Reward was {:>5} in {:>5} frame:".format(episode, reward_sum, frame_count))
-
             
             
 if __name__ == '__main__':
