@@ -27,14 +27,19 @@ class state_pub:
         #self.motor_pub(MotorPower.ON)
         vel = Twist()
         if msg.data == 0: #직진
-            vel.linear.x = 0.8
+            vel.linear.x = 0.9
         elif msg.data == 1: #우회전
             vel.linear.x = 0.7
-            vel.angular.z = -1.0
+            vel.angular.z = -1.2
         elif msg.data == 2: #좌회전
             vel.linear.x = 0.7
-            vel.angular.z = 1.0
-        elif msg.data == 4: # 정지(리셋)
+            vel.angular.z = 1.2
+        elif msg.data == 3: #제자리우회전
+            vel.angular.z = -2.0
+        elif msg.data == 4: #제자리좌회전
+            vel.angular.z = 2.0
+            
+        elif msg.data == 99: # 정지(리셋)
             self.motor_pub.publish(MotorPower.OFF)
             self.motor_pub.publish(MotorPower.ON)
         self.vel_pub.publish(vel)   #속도값 퍼블리시

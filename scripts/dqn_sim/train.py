@@ -18,8 +18,8 @@ from argparse import Action
 
 
 INPUT_SIZE = 9                       # [-60, -45, -30, -15, 0, 15, 30, 45, 60] 
-OUTPUT_SIZE = 3                      # [전진, 좌회전, 우회전]
-STOP = 4
+OUTPUT_SIZE = 5                      # [전진, 좌회전, 우회전]
+STOP = 99
 
 #Hyper parameter
 DISCOUNT_RATE = 0.9
@@ -91,7 +91,7 @@ class state_pub:
     def talker(self):
         # store the previous observations in replay memory
         replay_buffer = deque(maxlen=REPLAY_MEMORY)
-        last_10_game_reward = deque(maxlen=10)
+        last_20_episode_reward = deque(maxlen=20)
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
             mypolicy = policy.policy()                          #policy class 선언
@@ -140,9 +140,17 @@ class state_pub:
                             if len(replay_buffer) > BATCH_SIZE:
                                 minibatch = random.sample(replay_buffer, BATCH_SIZE)
                                 loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
+                                
                             print("action : {:>5}, current reward : {:>5}".format(action, reward_sum))
                         print("[episode {:>5}] Reward was {:>5} in {:>5} frame:".format(episode, reward_sum, frame_count))
-            
+                        
+                        #Traning complete condition
+                        last_20_episode_reward.append(reward_sum)
+                        if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
+                            avg_reward = np.mean(last_20_episode_reward)
+                            if avg_reward > 1000.0:
+                                print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
+                                break
             
 if __name__ == '__main__':
     try:

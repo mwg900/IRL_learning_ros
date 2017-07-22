@@ -26,7 +26,7 @@ class state_pub:
             if ang == 240:               # 루프문이 끝날 시에만 값 할당
                 self.range_state = tmp_state
     
-            if LaserScan.ranges[ang] < 0.23:        # 인식 거리가 23cm 미만일 시 (충돌) 완료플래그 셋
+            if LaserScan.ranges[ang] < 0.21:        # 인식 거리가 21cm 미만일 시 (충돌) 완료플래그 셋
                 self.done = True
                 
         self.F = True
