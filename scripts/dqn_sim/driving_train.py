@@ -6,8 +6,9 @@ import random
 import dqn
 import rospy
 import dqn
-
 from collections import deque
+
+from IRL_learning_ros.srv import SpawnPos
 from IRL_learning_ros.msg import State
 from std_msgs.msg import Int8
 from argparse import Action
@@ -16,17 +17,22 @@ from argparse import Action
 
 INPUT_SIZE = 9                       # [-60, -45, -30, -15, 0, 15, 30, 45, 60] 
 OUTPUT_SIZE = 3                      # [전진, 좌회전, 우회전]
+STOP = 4
 
+#Hyper parameter
 DISCOUNT_RATE = 0.9
 REPLAY_MEMORY = 10000
 MAX_EPISODE = 5000
 BATCH_SIZE = 64
+
+
 
 class state_pub:
     def __init__(self): 
         node_name = "state_pub" 
         rospy.init_node(node_name)
         #ros topic 구독자 설정 및 콜백함수 정의
+        self.respawn = rospy.ServiceProxy('/model_respawn', SpawnPos)   # 모델 위치 리셋용 Model state set 서비스 요청 함수 선언
         state_sub = rospy.Subscriber("/state", State, self.state_callback, queue_size=100)
         self.pub = rospy.Publisher('/action', Int8, queue_size=10)
         self.rate = rospy.Rate(10) # 10hz
@@ -122,7 +128,9 @@ class state_pub:
                                 reward = 1
                             if done:            # 충돌  
                                 reward = -200
-
+                                self.respawn()
+                                self.pub.publish(STOP)            #액션 값 퍼블리시
+                                
                             replay_buffer.append((state, action, reward, next_state, done))
                             #print(replay_buffer)
                             state = next_state
