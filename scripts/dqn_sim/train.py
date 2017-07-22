@@ -133,6 +133,8 @@ class state_pub:
                                 self.respawn()
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
                                 
+                                
+                            
                             replay_buffer.append((state, action, reward, next_state, done))
                             #print(replay_buffer)
                             state = next_state
@@ -148,8 +150,9 @@ class state_pub:
                         last_20_episode_reward.append(reward_sum)
                         if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
                             avg_reward = np.mean(last_20_episode_reward)
-                            if avg_reward > 1000.0:
+                            if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
                                 print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
+                                
                                 break
             
 if __name__ == '__main__':
