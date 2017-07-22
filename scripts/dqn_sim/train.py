@@ -3,9 +3,11 @@
 import numpy as np
 import tensorflow as tf
 import random
-import dqn
 import rospy
 import dqn
+import policy
+
+
 from collections import deque
 
 from IRL_learning_ros.srv import SpawnPos
@@ -91,7 +93,9 @@ class state_pub:
         replay_buffer = deque(maxlen=REPLAY_MEMORY)
         last_10_game_reward = deque(maxlen=10)
         with tf.Session() as sess:
-            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)
+            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
+            mypolicy = policy.policy()                          #policy class 선언
+            
             init = tf.global_variables_initializer()
             sess.run(init)
             print('Traning ready')
@@ -121,13 +125,12 @@ class state_pub:
                             
                             next_state = self.state
                             done = self.done
+                            
                             # Reward Policy
-                            if action == 0:
-                                reward = 5
-                            elif (action == 1) or (action == 2):
-                                reward = 1
+                            reward = mypolicy.autonomous_driving(action, done)
+                            
                             if done:            # 충돌  
-                                reward = -200
+                                #reward = -200
                                 self.respawn()
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
                                 
