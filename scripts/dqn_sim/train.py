@@ -37,7 +37,7 @@ class state_pub:
         self.respawn = rospy.ServiceProxy('/model_respawn', SpawnPos)   # 모델 위치 리셋용 Model state set 서비스 요청 함수 선언
         state_sub = rospy.Subscriber("/state", State, self.state_callback, queue_size=100)
         self.pub = rospy.Publisher('/action', Int8, queue_size=10)
-        self.rate = rospy.Rate(10) # 10hz
+        self.rate = rospy.Rate(5) # 10hz -> 5Hz
         self.F = False 
         
         
