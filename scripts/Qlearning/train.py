@@ -31,9 +31,15 @@ if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
     OUTPUT_SIZE = register.environment.v0['output_size']
     POLICY =      register.environment.v0['policy']
-    print('Autonomous_driving training is ready')
+    print('Autonomous_driving training v0 is ready')
     print(register.environment.v0)
 
+if ENVIRONMENT == 'v1':
+    INPUT_SIZE =  register.environment.v1['input_size']
+    OUTPUT_SIZE = register.environment.v1['output_size']
+    POLICY =      register.environment.v1['policy']
+    print('Autonomous_driving training v1 is ready')
+    print(register.environment.v1)
 
 class training:
     def __init__(self): 
@@ -46,7 +52,7 @@ class training:
         self.rate = rospy.Rate(5) # 10hz -> 5Hz
         self.F = False 
         #self.model_path = "/home/moon/model/driving.ckpt"
-        self.model_path = MODEL_PATH + "/driving.ckpt"
+        self.model_path = MODEL_PATH + "/driving"+ENVIRONMENT+".ckpt"
     #Laser 토픽 콜백
     def state_callback(self, msg):
         self.state = msg.ranges
@@ -98,6 +104,7 @@ class training:
         # store the previous observations in replay memory
         replay_buffer = deque(maxlen=REPLAY_MEMORY)
         last_20_episode_reward = deque(maxlen=20)
+        highest = 0.0
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
             mypolicy = policy.policy()     #policy class 선언
@@ -165,13 +172,16 @@ class training:
                                 minibatch = random.sample(replay_buffer, BATCH_SIZE)
                                 loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
                                 
-                            print("action : {:>5}, current reward : {:>5}".format(action, reward_sum))
-                        print("[episode {:>5}] Reward was {:>5} in {:>5} frame:".format(episode, reward_sum, frame_count))
-                        
-                        #save data
+                            print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
+                        print("[episode {:>5}] score was {:>5} in {:>5} frame".format(episode, reward_sum, frame_count))
+                        if reward_sum > highest:
+                            highest = reward_sum
+                        #------------------------------------------------------------------------------ 
+                        #save model
                         if episode % 30 == 0:
                             save_path = saver.save(sess, self.model_path, global_step=episode)
                             print("Data save in {}".format(save_path))     
+                        #------------------------------------------------------------------------------ 
                         
                         #Traning complete condition
                         last_20_episode_reward.append(reward_sum)
@@ -180,9 +190,12 @@ class training:
                             if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
                                 print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
                                 #save data
-                                
+                                if episode % 30 == 0:
+                                    save_path = saver.save(sess, self.model_path, global_step=9999999999)
+                                    print("Data save in {}".format(save_path))
                                 break
-       
+                            print("Average score : {:>5}, Highest score : {:>5}".format(avg_reward, highest))
+
 if __name__ == '__main__':
     try:
         main = training()

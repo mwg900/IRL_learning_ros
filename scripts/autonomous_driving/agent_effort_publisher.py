@@ -19,12 +19,9 @@ class state_pub:
         
         self.rate = rospy.Rate(10) # 10hz
         self.vel = Twist()          #Twist() 메세지 형태로 vel 변수 선언
-        
-        
-    
+
     #Laser 토픽 콜백
     def action_callback(self, msg):
-        #self.motor_pub(MotorPower.ON)
         vel = Twist()
         if msg.data == 0: #직진
             vel.linear.x = 0.9
@@ -37,6 +34,7 @@ class state_pub:
         elif msg.data == 3: #제자리우회전
             vel.angular.z = -2.0
         elif msg.data == 4: #제자리좌회전
+            vel.linear.x = -0.05
             vel.angular.z = 2.0
             
         elif msg.data == 99: # 정지(리셋)

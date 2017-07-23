@@ -12,3 +12,22 @@ DQN node 실행
 
 DQN node 실행( ex) model data's episode = 660, environment = v1)
 <pre><code>$ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v1'</code></pre>
+
+
+
+
+
+
+
+
+
+
+obstacle world 및 kobuki 생성 (environment = v1)
+
+ $ roslaunch IRL_learning_ros training.launch env:='v1'
+
+DQN node 실행
+ $ roslaunch IRL_learning_ros deepQlearning.launch
+
+DQN node 실행( ex) model data's episode = 660, environment = v1)
+roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v1'
