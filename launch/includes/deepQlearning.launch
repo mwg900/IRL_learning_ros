@@ -3,5 +3,9 @@
   <!-- simulation model manage node >-->
   <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py"/>
   <!-- training node >-->
-  <node name="driving_train"	pkg="IRL_learning_ros"  type="train.py" output="screen"/>
+  <node name="driving_train"	pkg="IRL_learning_ros"  type="train.py" output="screen">
+	<param name="model_path" value="$(find IRL_learning_ros)/model"/>
+	<param name="init_episode" value="0" />
+  </node>
 </launch>
+
