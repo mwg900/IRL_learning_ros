@@ -130,7 +130,6 @@ class state_pub:
                             reward = mypolicy.autonomous_driving(action, done)
                             
                             if done:            # 충돌  
-                                #reward = -200
                                 self.respawn()
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
                                 

@@ -47,9 +47,9 @@ class simulation_server:
         state.pose.orientation.z = quaternion[2]
         state.pose.orientation.w = quaternion[3]
         
-        #self.set_pos(state)
+        self.set_pos(state)
         self.reset()
-        self.set_pos(state)    
+        self.set_pos(state)     #버그 방지를 위해 모델 리스폰 -> 월드 리셋 -> 모델 리스폰 순으로 정리 
         return x, y, theta
 
 if __name__ == "__main__":
