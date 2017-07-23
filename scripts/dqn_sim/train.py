@@ -23,9 +23,10 @@ OUTPUT_SIZE = 5                      # [전진, 좌회전, 우회전]
 
 DISCOUNT_RATE = 0.9
 REPLAY_MEMORY = 10000
+INIT_EPISODE = 0
 MAX_EPISODE = 5000
 BATCH_SIZE = 64
-
+MODEL_PATH = "/home/moon/catkin_ws/src/IRL_learning_ros/IRL_learning_ros/model"
 
 class training:
     def __init__(self): 
@@ -37,9 +38,8 @@ class training:
         self.pub = rospy.Publisher('/action', Int8, queue_size=10)
         self.rate = rospy.Rate(5) # 10hz -> 5Hz
         self.F = False 
-        #self.model_path ="model/driving.ckpt"
-        self.model_path = "/home/moon/model/driving.ckpt"
-        
+        #self.model_path = "/home/moon/model/driving.ckpt"
+        self.model_path = MODEL_PATH + "/driving.ckpt"
     #Laser 토픽 콜백
     def state_callback(self, msg):
         self.state = msg.ranges
@@ -106,7 +106,7 @@ class training:
             while not rospy.is_shutdown():
                 if self.F is True:
                     
-                    for episode in range(MAX_EPISODE):
+                    for episode in range(INIT_EPISODE, INIT_EPISODE + MAX_EPISODE+1):
                         e = 1. / ((episode / 10) + 1)
                         done = False
                         reward_sum = 0
@@ -125,7 +125,7 @@ class training:
                                     print('error, state is {}'.format(state))
                                     
                             self.pub.publish(action)            #액션 값 퍼블리시
-                            self.rate.sleep()           #ROS sleep
+                            rospy.sleep(0.3)                    #0.05초 딜레이
                             
                             next_state = self.state
                             done = self.done
@@ -133,14 +133,13 @@ class training:
                             # Reward Policy
                             reward = mypolicy.autonomous_driving(action, done)
                             
-                            if done:            # 충돌  
-                                self.respawn()
+                            # if 충돌 시 종료 구문
+                            if done:                    
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
+                                self.respawn()
                                 
-                                
-                            
                             replay_buffer.append((state, action, reward, next_state, done))
-                            #print(replay_buffer)
+                            
                             state = next_state
                             reward_sum += reward
                             if len(replay_buffer) > BATCH_SIZE:
