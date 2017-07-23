@@ -99,8 +99,15 @@ class training:
             saver = tf.train.Saver(max_to_keep= 10)
             sess.run(init)
             
-            #saver.restore(sess, self.model_path)            #저장된 데이터 불러오기
-            #print("Model restored from file")
+            #------------------------------------------------------------------------------ 
+            # Model load
+            #------------------------------------------------------------------------------ 
+            if INIT_EPISODE is not 0:
+                load_epi = str(INIT_EPISODE)
+                model_name = self.model_path+"-"+load_epi
+                saver.restore(sess, model_name)            #저장된 데이터 불러오기
+                print("Model restored from {}".format(model_name))
+            #------------------------------------------------------------------------------ 
             
             print('Traning ready')
             while not rospy.is_shutdown():
