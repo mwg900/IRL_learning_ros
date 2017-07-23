@@ -1,0 +1,5 @@
+<!---->
+<launch>
+  <node pkg="IRL_learning_ros" type="agent_state_publisher.py" name="agent_state_publisher"/>
+  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>
+</launch>

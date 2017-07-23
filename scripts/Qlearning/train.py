@@ -6,7 +6,7 @@ import random
 import rospy
 import dqn
 import policy
-
+import register
 
 from collections import deque
 
@@ -18,15 +18,22 @@ from argparse import Action
 STOP = 99
 #Hyper parameter
 
-INPUT_SIZE = 9                       # [-60, -45, -30, -15, 0, 15, 30, 45, 60] 
-OUTPUT_SIZE = 5                      # [전진, 좌회전, 우회전]
+ENVIRONMENT = rospy.get_param('/driving_train/environment', 'v0')
+MODEL_PATH = rospy.get_param('/driving_train/model_path', default = 'model')
+INIT_EPISODE = rospy.get_param('/driving_train/init_episode', default = 0)
+MAX_EPISODE = rospy.get_param('/driving_train/max_episode', default = 5000)
+DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
+REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
+BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
 
-DISCOUNT_RATE = 0.9
-REPLAY_MEMORY = 10000
-INIT_EPISODE = 0
-MAX_EPISODE = 5000
-BATCH_SIZE = 64
-MODEL_PATH = "/home/moon/catkin_ws/src/IRL_learning_ros/IRL_learning_ros/model"
+
+if ENVIRONMENT == 'v0':
+    INPUT_SIZE =  register.environment.v0['input_size']
+    OUTPUT_SIZE = register.environment.v0['output_size']
+    POLICY =      register.environment.v0['policy']
+    print('Autonomous_driving training is ready')
+    print(register.environment.v0)
+
 
 class training:
     def __init__(self): 
@@ -93,8 +100,9 @@ class training:
         last_20_episode_reward = deque(maxlen=20)
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
-            mypolicy = policy.policy()                          #policy class 선언
-            
+            mypolicy = policy.policy()     #policy class 선언
+                
+                
             init = tf.global_variables_initializer()
             saver = tf.train.Saver(max_to_keep= 10)
             sess.run(init)
@@ -130,23 +138,27 @@ class training:
                                     action = np.argmax(mainDQN.predict(state))
                                 except:
                                     print('error, state is {}'.format(state))
-                                    
+                                     
                             self.pub.publish(action)            #액션 값 퍼블리시
-                            rospy.sleep(0.3)                    #0.05초 딜레이
-                            
+                            rospy.sleep(0.1)                    #0.1초 딜레이
+                             
                             next_state = self.state
                             done = self.done
-                            
+                                      
                             # Reward Policy
-                            reward = mypolicy.autonomous_driving(action, done)
-                            
+                            try:
+                                if POLICY == 'autonomous_driving':
+                                    reward = mypolicy.autonomous_driving(action, done)     #reward 리턴
+                            except:
+                                print('there is no policy') 
+                                
                             # if 충돌 시 종료 구문
                             if done:                    
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
                                 self.respawn()
-                                
+                                     
                             replay_buffer.append((state, action, reward, next_state, done))
-                            
+                             
                             state = next_state
                             reward_sum += reward
                             if len(replay_buffer) > BATCH_SIZE:

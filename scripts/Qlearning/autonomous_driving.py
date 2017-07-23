@@ -32,9 +32,8 @@ class state_pub:
         self.state = msg.ranges
         self.done = msg.done
         self.F = True
-
-
     
+
     def talker(self):
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
