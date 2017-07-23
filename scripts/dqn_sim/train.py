@@ -112,7 +112,7 @@ class state_pub:
                         while not done:
                             frame_count += 1
                             state = self.state
-                            if np.random.rand() < 0:
+                            if np.random.rand() < e:
                                 action = random.randrange(0,OUTPUT_SIZE)
                             else:
                                 try:

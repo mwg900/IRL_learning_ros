@@ -4,14 +4,14 @@
  -->
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- General -->
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/common_properties.urdf.xacro"/>
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/turtlebot_properties.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/common_properties.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/turtlebot_properties.urdf.xacro"/>
   <!-- Bases -->
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/kobuki.urdf.xacro" />
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/kobuki.urdf.xacro" />
   <!-- Stacks -->
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/hexagons.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/hexagons.urdf.xacro"/>
   <!-- 3D Sensors -->
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/asus_xtion_pro.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/sensor/asus_xtion_pro.urdf.xacro"/>
   <!-- 2D Rplidar -->
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/sensor/rplidar.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/sensor/rplidar.urdf.xacro"/>
 </robot>

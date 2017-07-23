@@ -8,8 +8,10 @@ class policy :
         if action == 0:
             reward = 5
         elif (action == 1) or (action == 2):
-            reward = -0.1
+            reward = -0.5
         if done:            # 충돌  
             reward = -200
-        
+    
         return reward
+    
+    

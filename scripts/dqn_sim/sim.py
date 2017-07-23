@@ -47,8 +47,9 @@ class simulation_server:
         state.pose.orientation.z = quaternion[2]
         state.pose.orientation.w = quaternion[3]
         
+        #self.set_pos(state)
         self.reset()
-        self.set_pos(state)
+        self.set_pos(state)    
         return x, y, theta
 
 if __name__ == "__main__":

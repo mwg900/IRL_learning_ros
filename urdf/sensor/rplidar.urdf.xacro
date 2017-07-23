@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="sensor_rplidar" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/turtlebot_gazebo.urdf.xacro"/>
-  <xacro:include filename="$(find mobile_robot_sim)/urdf/turtlebot_properties.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/turtlebot_gazebo.urdf.xacro"/>
+  <xacro:include filename="$(find IRL_learning_ros)/urdf/turtlebot_properties.urdf.xacro"/>
   <!-- Hokuyo 2D LIDAR -->
   <xacro:macro name="sensor_rplidar" params="parent">
     <joint name="laser" type="fixed">
