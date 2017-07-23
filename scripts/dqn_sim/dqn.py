@@ -30,9 +30,11 @@ class DQN:
         self.input_size = input_size
         self.output_size = output_size
         self.net_name = name
-
+        
         self._build_network()
-
+        
+        self.saver = tf.train.Saver()
+        
     def _build_network(self, h_size=16, l_rate=0.001):
         """DQN Network architecture (simple MLP)
         Args:
@@ -52,28 +54,7 @@ class DQN:
             optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
             self._train = optimizer.minimize(self._loss)
           
-        '''
-            ####################with original version
-            self._X = tf.placeholder(tf.float32, [None, self.input_size], name="input_x")
-            #first layer of weights
-            W1 = tf.get_variable("W", shape = [self.input_size, h_size], initializer=tf.contrib.layers.xavier_initializer())
-            
-            layer1 = tf.nn.tanh(tf.matmul(self._X,W1))
-            
-            #second layer of weights
-            W2 = tf.get_variable("W", shape = [h_size, self.output_size], initializer=tf.contrib.layers.xavier_initializer())
-            
-            # Q prediction
-            self._Qpred = tf.matmul(layer1, W2)
-        # policy
-        self._Y = tf.placeholder(shape=[None, self.output_size], dtype=tf.float32)
-        # Loss function
-        self._loss = tf.reduce_mean(tf.square(self._Y - self._Qpred))
-        # Learning
-        optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
-        self._train = optimizer.minimize(self._loss)
-        ###################################
-        '''
+
             
     # state에 따라 Q 함수의 값을 돌려주는 함수
     def predict(self, state):
@@ -96,3 +77,15 @@ class DQN:
             list: First element is loss, second element is a result from train step
         """
         return self.session.run([self._loss, self._train], feed_dict = {self._X: x_stack, self._Y: y_stack})
+    
+    
+    
+    def save_data(self, sess, model_path):
+        # Save model weights to disk
+        self.saver.save(sess, model_path)
+        
+    
+    def restore_data(self, sess, model_path):
+        # restore model weights from disk
+        self.saver.restore(sess, model_path)
+        

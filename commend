@@ -1,0 +1,5 @@
+obstacle world 및 kobuki 생성
+ $ roslaunch IRL_learning_ros training.launch 
+
+DQN node 실행
+ $ roslaunch IRL_learning_ros deepQlearning.launch

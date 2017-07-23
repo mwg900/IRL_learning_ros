@@ -13,7 +13,10 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
 import tensorflow as tf
 
+
+MODEL_PATH = "src/model"
 # Network Parameters
+
 n_hidden_1 = 256 # 1st layer number of features
 n_hidden_2 = 256 # 2nd layer number of features
 n_input = 784 # MNIST data input (img shape: 28*28)
@@ -41,8 +44,8 @@ def talker():
     learning_rate = 0.001
     batch_size = 100
     display_step = 1
-    model_path = "model/model.ckpt"
-    
+    model_path = "model/test1111111111.ckpt"
+    #model_path = MODEL_PATH+"/test.ckpt"
     
     # tf Graph input
     x = tf.placeholder("float", [None, n_input])

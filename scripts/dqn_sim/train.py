@@ -15,23 +15,21 @@ from IRL_learning_ros.msg import State
 from std_msgs.msg import Int8
 from argparse import Action
 
-
+STOP = 99
+#Hyper parameter
 
 INPUT_SIZE = 9                       # [-60, -45, -30, -15, 0, 15, 30, 45, 60] 
 OUTPUT_SIZE = 5                      # [전진, 좌회전, 우회전]
-STOP = 99
 
-#Hyper parameter
 DISCOUNT_RATE = 0.9
 REPLAY_MEMORY = 10000
 MAX_EPISODE = 5000
 BATCH_SIZE = 64
 
 
-
-class state_pub:
+class training:
     def __init__(self): 
-        node_name = "state_pub" 
+        node_name = "training" 
         rospy.init_node(node_name)
         #ros topic 구독자 설정 및 콜백함수 정의
         self.respawn = rospy.ServiceProxy('/model_respawn', SpawnPos)   # 모델 위치 리셋용 Model state set 서비스 요청 함수 선언
@@ -39,7 +37,8 @@ class state_pub:
         self.pub = rospy.Publisher('/action', Int8, queue_size=10)
         self.rate = rospy.Rate(5) # 10hz -> 5Hz
         self.F = False 
-        
+        #self.model_path ="model/driving.ckpt"
+        self.model_path = "/home/moon/model/driving.ckpt"
         
     #Laser 토픽 콜백
     def state_callback(self, msg):
@@ -97,7 +96,12 @@ class state_pub:
             mypolicy = policy.policy()                          #policy class 선언
             
             init = tf.global_variables_initializer()
+            saver = tf.train.Saver(max_to_keep= 10)
             sess.run(init)
+            
+            #saver.restore(sess, self.model_path)            #저장된 데이터 불러오기
+            #print("Model restored from file")
+            
             print('Traning ready')
             while not rospy.is_shutdown():
                 if self.F is True:
@@ -146,18 +150,24 @@ class state_pub:
                             print("action : {:>5}, current reward : {:>5}".format(action, reward_sum))
                         print("[episode {:>5}] Reward was {:>5} in {:>5} frame:".format(episode, reward_sum, frame_count))
                         
+                        #save data
+                        if episode % 30 == 0:
+                            save_path = saver.save(sess, self.model_path, global_step=episode)
+                            print("Data save in {}".format(save_path))     
+                        
                         #Traning complete condition
                         last_20_episode_reward.append(reward_sum)
                         if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
                             avg_reward = np.mean(last_20_episode_reward)
                             if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
                                 print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
+                                #save data
                                 
                                 break
-            
+       
 if __name__ == '__main__':
     try:
-        main = state_pub()
+        main = training()
         main.talker()
     except rospy.ROSInterruptException:
         pass
