@@ -60,7 +60,6 @@ class training:
         self.state = msg.ranges
         self.done = msg.done
         self.F = True
-        #if msg.done == True:
             
 
 
@@ -97,7 +96,7 @@ class training:
                 
                 
             init = tf.global_variables_initializer()
-            saver = tf.train.Saver(max_to_keep= 10)
+            saver = tf.train.Saver(max_to_keep= 5)
             sess.run(init)
             
             #------------------------------------------------------------------------------ 
@@ -137,7 +136,7 @@ class training:
                                 rospy.sleep(0.1)                    #0.1초 딜레이
                              
                             next_state = self.state
-                                      
+                            done = self.done
                             # Reward Policy
                             try:
                                 if POLICY == 'autonomous_driving':
@@ -156,12 +155,11 @@ class training:
                                 loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
                                 
                             print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
-                            # if 충돌 시 종료 구문
-                            if done:                    
-                                self.pub.publish(STOP)            #액션 값 퍼블리시
-                                self.respawn()                    #리스폰 요청은 한번만.
-                                rospy.sleep(0.1)                    #0.1초 딜레이
-                            
+     
+                        self.pub.publish(STOP)            #액션 값 퍼블리시
+                        self.respawn()                    #리스폰 요청은 한번만.
+                        rospy.sleep(0.2)                    #0.1초 딜레이
+                        self.F = False
                         print("[episode {:>5}] score was {:>5} in {:>5} frame".format(episode, reward_sum, frame_count))
                         if reward_sum > highest:
                             highest = reward_sum
