@@ -16,8 +16,8 @@ from std_msgs.msg import Int8
 from argparse import Action
 
 STOP = 99
-#Hyper parameter
 
+#Hyper parameter
 ENVIRONMENT = rospy.get_param('/driving_train/environment', 'v0')
 MODEL_PATH = rospy.get_param('/driving_train/model_path', default = 'model')
 INIT_EPISODE = rospy.get_param('/driving_train/init_episode', default = 0)
@@ -112,7 +112,6 @@ class training:
             print('Traning ready')
             while not rospy.is_shutdown():
                 if self.F is True:
-                    
                     for episode in range(INIT_EPISODE+1, INIT_EPISODE + MAX_EPISODE+1):
                         e = 1. / ((episode / 10) + 1)
                         done = False

@@ -48,8 +48,9 @@ class state_pub:
                 if msg.done == True:
                     self.pub.publish(msg)
                     rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
-                    rospy.sleep(0.1)    #0.1초동안 딜레이
-                    
+                    rospy.wait_for_service('gazebo/set_model_state')    #reset 될 때까지 대기
+                    rospy.sleep(0.2)    #0.2초동안 딜레이
+                    self.done = False
                 else:   
                     self.pub.publish(msg)
 
