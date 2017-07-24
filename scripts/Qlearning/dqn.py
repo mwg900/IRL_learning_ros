@@ -16,7 +16,7 @@ from tensorflow.contrib.slim.python.slim import learning
 
 class DQN:
 
-    def __init__(self, session, input_size, output_size, name="main"):
+    def __init__(self, session, input_size, output_size, hidden_layer_size=16, learning_rate=0.001, name="main"):
         """DQN Agent can
         1) Build network
         2) Predict Q_value given state
@@ -32,11 +32,11 @@ class DQN:
         self.output_size = output_size
         self.net_name = name
         
-        self._build_network()
+        self._build_network(hidden_layer_size, learning_rate)
         
         self.saver = tf.train.Saver()
         
-    def _build_network(self, h_size=16, l_rate=0.001):
+    def _build_network(self, h_size, l_rate):
         """DQN Network architecture (simple MLP)
         Args:
             h_size (int, optional): Hidden layer dimension
@@ -76,17 +76,7 @@ class DQN:
             y_stack (np.ndarray): Target Q array, shape (n, output_dim)
         Returns:
             list: First element is loss, second element is a result from train step
-        """
+        """ 
         return self.session.run([self._loss, self._train], feed_dict = {self._X: x_stack, self._Y: y_stack})
     
     
-    
-    def save_data(self, sess, model_path):
-        # Save model weights to disk
-        self.saver.save(sess, model_path)
-        
-    
-    def restore_data(self, sess, model_path):
-        # restore model weights from disk
-        self.saver.restore(sess, model_path)
-        
