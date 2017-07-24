@@ -114,7 +114,7 @@ class training:
         # store the previous observations in replay memory
         replay_buffer = deque(maxlen=REPLAY_MEMORY)
         last_20_episode_reward = deque(maxlen=20)
-        highest = 0.0
+        highest = -9999.
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
             #mypolicy = policy.policy()     #policy class 선언
@@ -197,16 +197,23 @@ class training:
                     #------------------------------------------------------------------------------ 
                     
                     #Traning complete condition
-                    last_20_episode_reward.append(reward_sum)
-                    if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
-                        avg_reward = np.mean(last_20_episode_reward)
-                        if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
-                            print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
+                    if reward_sum >= 1000:
+                        result = 1
+                    else:
+                        result = 0
+                    
+                    last_20_episode_reward.append(result)
+                    if len(last_20_episode_reward) == last_20_episode_reward.maxlen:            #20번 이상 시도
+                        success_rate = np.mean(last_20_episode_reward) * 100
+                        
+                        if success_rate > 95.0:                 #20번 연속 학습의 평균 성공률이 90% 이상이면 학습 종료 후 저장
+                            print("Traning Cleared within {} episodes with avg rate {}".format(episode, success_rate))
                             #save data
                             save_path = saver.save(sess, self.model_path, global_step=9999999999)
                             print("Data save in {}".format(save_path))
                             break
-                        print("Average score : {:>5}, Highest score : {:>5}".format(avg_reward, highest))
+                        print("Success_rate : {:>5}%, Highest score : {:>5}".format(success_rate, highest))
+
 
 if __name__ == '__main__':
     try:
