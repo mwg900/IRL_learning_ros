@@ -33,6 +33,7 @@ INIT_EPISODE = rospy.get_param('/driving_train/init_episode', default = 0)
 DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
+TARGET_UPDATE_FREQUENCY = 5
 
 if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
@@ -54,7 +55,7 @@ else:
     
 class training:
     def __init__(self): 
-        node_name = "training" 
+        node_name = "training2015" 
         rospy.init_node(node_name)
         #ros topic 구독자 설정 및 콜백함수 정의
         self.respawn = rospy.ServiceProxy('/model_respawn', SpawnPos)   # 모델 위치 리셋용 Model state set 서비스 요청 함수 선언
@@ -66,7 +67,7 @@ class training:
         self.episode = INIT_EPISODE
         
         #self.model_path = "/home/moon/model/driving.ckpt"
-        self.model_path = MODEL_PATH +"/"+ENVIRONMENT+"/driving"+ENVIRONMENT+".ckpt"
+        self.model_path = MODEL_PATH +"/"+ENVIRONMENT+"/driving15"+ENVIRONMENT+".ckpt"
         
         
         
@@ -87,39 +88,56 @@ class training:
         self.F = True
             
     
+    def get_copy_var_ops(self, dest_scope_name, src_scope_name):  # main과 target의 W값을 카피해줌
+        """Creates TF operations that copy weights from `src_scope` to `dest_scope`
+        Args:
+            dest_scope_name (str): Destination weights (copy to)
+            src_scope_name (str): Source weight (copy from)
+        Returns:
+            List[tf.Operation]: Update operations are created and returned
+        """
+        # Copy variables src_scope to dest_scope
+        op_holder = []
+    
+        src_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=src_scope_name)
+        dest_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=dest_scope_name)
+    
+        for src_var, dest_var in zip(src_vars, dest_vars):          # zip - 하나로 묶어주는 함수
+            op_holder.append(dest_var.assign(src_var.value()))      # dest_var = src_var와 동일한 의미
+    
+        return op_holder
 
-    def train_minibatch(self, DQN, train_batch):
 
-        state_array = np.vstack([x[0] for x in train_batch])        #state 배열     [[64][input_size]]
-        action_array = np.array([x[1] for x in train_batch])        #action 배열    [[64][output_size]]
-        reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[64][1]]
-        next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[64][input_size]]
-        done_array = np.array([x[4] for x in train_batch])          #done 배열      [[64][1]]
+    def train_minibatch(self, mainDQN, targetDQN, train_batch):
+
+        state_array = np.vstack([x[0] for x in train_batch])        #state 배열     [[BATCH_SIZE][INPUT_SIZE]]
+        action_array = np.array([x[1] for x in train_batch])        #action 배열    [[BATCH_SIZE][OUTPUT_SIZE]]
+        reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[BATCH_SIZE][1]]
+        next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[BATCH_SIZE][INPUT_SIZE]]
+        done_array = np.array([x[4] for x in train_batch])          #done 배열      [[BATCH_SIZE][1]]
         
-        X_batch = state_array               #state 배열     [[64][9]]
-        y_batch = DQN.predict(state_array)
+        X_batch = state_array                    #state 배열     [[BATCH_SIZE][9]]
+        y_batch = mainDQN.predict(state_array)                # [[BATCH_SIZE][OUTPUT_SIZE]]
         
         
         
-        Q_target = reward_array + DISCOUNT_RATE * np.max(DQN.predict(next_state_array), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
+        Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
         y_batch[np.arange(len(X_batch)), action_array] = Q_target
         
         # Train our network using target and predicted Q values on each episode
-        loss, _ = DQN.update(X_batch, y_batch)
+        loss, _ = mainDQN.update(X_batch, y_batch)
         return loss
 
-    
-    
+
     def talker(self):
         # store the previous observations in replay memory
         replay_buffer = deque(maxlen=REPLAY_MEMORY)
         last_20_episode_reward = deque(maxlen=20)
         highest = -9999.
         with tf.Session() as sess:
-            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
-            #mypolicy = policy.policy()     #policy class 선언
-                
-                
+            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, name = "main")    #DQN class 선언
+            targetDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, name ="target")
+            
             init = tf.global_variables_initializer()
             saver = tf.train.Saver(max_to_keep= 5)
             sess.run(init)
@@ -133,6 +151,9 @@ class training:
                 saver.restore(sess, model_name)            #저장된 데이터 불러오기
                 print("Model restored from {}".format(model_name))
             #------------------------------------------------------------------------------ 
+            
+            copy_ops = self.get_copy_var_ops(dest_scope_name ="target", src_scope_name ="main")
+            sess.run(copy_ops)
             
             print('Traning ready')
             while not rospy.is_shutdown():
@@ -172,12 +193,17 @@ class training:
                                 
                         replay_buffer.append((state, action, reward, next_state, done))
                          
-                        state = next_state
-                        reward_sum += reward
+
+                        
                         if len(replay_buffer) > BATCH_SIZE:
                             minibatch = random.sample(replay_buffer, BATCH_SIZE)
-                            loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
-                            
+                            loss = self.train_minibatch(mainDQN, targetDQN, minibatch)   #학습
+
+                        if frame_count % TARGET_UPDATE_FREQUENCY == 0:               #네트워크 복사
+                            sess.run(copy_ops)
+                        
+                        state = next_state
+                        reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
  
                     self.pub.publish(STOP)          #액션 값 퍼블리시

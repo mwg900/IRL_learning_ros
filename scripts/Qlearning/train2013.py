@@ -90,14 +90,14 @@ class training:
 
     def train_minibatch(self, DQN, train_batch):
 
-        state_array = np.vstack([x[0] for x in train_batch])        #state 배열     [[64][input_size]]
-        action_array = np.array([x[1] for x in train_batch])        #action 배열    [[64][output_size]]
-        reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[64][1]]
-        next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[64][input_size]]
-        done_array = np.array([x[4] for x in train_batch])          #done 배열      [[64][1]]
+        state_array = np.vstack([x[0] for x in train_batch])        #state 배열     [[BATCH_SIZE][INPUT_SIZE]]
+        action_array = np.array([x[1] for x in train_batch])        #action 배열    [[BATCH_SIZE][OUTPUT_SIZE]]
+        reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[BATCH_SIZE][1]]
+        next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[BATCH_SIZE][INPUT_SIZE]]
+        done_array = np.array([x[4] for x in train_batch])          #done 배열      [[BATCH_SIZE][1]]
         
-        X_batch = state_array               #state 배열     [[64][9]]
-        y_batch = DQN.predict(state_array)
+        X_batch = state_array                    #state 배열     [[BATCH_SIZE][9]]
+        y_batch = DQN.predict(state_array)       #              [[BATCH_SIZE][OUTPUT_SIZE]]
         
         
         
@@ -117,9 +117,6 @@ class training:
         highest = -9999.
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE)    #DQN class 선언
-            #mypolicy = policy.policy()     #policy class 선언
-                
-                
             init = tf.global_variables_initializer()
             saver = tf.train.Saver(max_to_keep= 5)
             sess.run(init)
