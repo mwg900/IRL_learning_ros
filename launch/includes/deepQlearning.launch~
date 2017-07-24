@@ -8,7 +8,8 @@
   <node name="driving_train"	pkg="IRL_learning_ros"  type="train.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />
 				<!-- envirionment
-					v0 : autonomous driving traning
+					v0 : autonomous driving traning input 9
+					v1 : autonomous driving traning input 11
 				-->
 	<param name="model_path" 	value="$(find IRL_learning_ros)/model"/>
 	<param name="init_episode" 	value="$(arg data)" />

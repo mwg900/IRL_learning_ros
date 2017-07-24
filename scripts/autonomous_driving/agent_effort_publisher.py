@@ -32,9 +32,10 @@ class state_pub:
             vel.linear.x = 0.7
             vel.angular.z = 1.2
         elif msg.data == 3: #제자리우회전
+            vel.linear.x = 0.0
             vel.angular.z = -2.0
         elif msg.data == 4: #제자리좌회전
-            vel.linear.x = -0.05
+            vel.linear.x = 0.0
             vel.angular.z = 2.0
             
         elif msg.data == 99: # 정지(리셋)

@@ -4,6 +4,7 @@
 import rospy
 from sensor_msgs.msg import LaserScan
 from IRL_learning_ros.msg import State 
+from __builtin__ import False
 #from IRL_learning_ros.srv import SpawnPos
 
 INVERSED = rospy.get_param('/agent_state_publisher/inversed', False)
@@ -43,12 +44,15 @@ class state_pub:
                 msg = State()
                 msg.ranges = self.range_state
                 msg.done = self.done
-                if self.done == True:
+                
+                if msg.done == True:
+                    self.pub.publish(msg)
                     rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
                     rospy.sleep(0.1)    #0.1초동안 딜레이
-                self.pub.publish(msg)
-            #self.rate.sleep()
-     
+                    
+                else:   
+                    self.pub.publish(msg)
+
 if __name__ == '__main__':
     try:
         main = state_pub()
