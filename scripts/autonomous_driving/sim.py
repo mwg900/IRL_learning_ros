@@ -1,5 +1,10 @@
 #!/usr/bin/env python 
 #-*- coding: utf-8 -*- 
+"""
+Ros node for Gazebo simulation model spawn
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
+
 import rospy
 import random
 import tf

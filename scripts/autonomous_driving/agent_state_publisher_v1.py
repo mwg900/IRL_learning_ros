@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-
+"""
+Ros node for RPlidar sensor msg pub
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 import rospy
 from sensor_msgs.msg import LaserScan
 from IRL_learning_ros.msg import State 

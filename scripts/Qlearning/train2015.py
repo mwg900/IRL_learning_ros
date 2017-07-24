@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
+"""
+Ros node for Reinforcement learning
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+
+Original algorithm : Double DQN (Nature 2015)
+http://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
+""" 
 import numpy as np
 import tensorflow as tf
 import random
@@ -8,6 +15,7 @@ import dqn
 import policy
 import register
 import sys
+import csv              
 
 from collections import deque
 
@@ -59,13 +67,26 @@ class training:
         
         #self.model_path = "/home/moon/model/driving.ckpt"
         self.model_path = MODEL_PATH +"/"+ENVIRONMENT+"/driving"+ENVIRONMENT+".ckpt"
+        
+        
+        
+    def save_file(self, episode, score):
+        if episode == 1:
+            with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'w') as csvfile:       #새로 쓰기
+                writer = csv.writer(csvfile, delimiter=',') 
+                writer.writerow([episode]+[score]) 
+        else:
+            with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'a') as csvfile:       #추가
+                writer = csv.writer(csvfile, delimiter=',') 
+                writer.writerow([episode]+[score]) 
+    
     #Laser 토픽 콜백
     def state_callback(self, msg):
         self.state = msg.ranges
         self.done = msg.done
         self.F = True
             
-
+    
 
     def train_minibatch(self, DQN, train_batch):
 
@@ -163,6 +184,8 @@ class training:
                     self.respawn()                  #리스폰 요청은 한번만
                     self.F = False                  #플래그 언셋 후 다음 학습까지 대기
                     
+                    self.save_file(self.episode, reward_sum)            # 파일 저장
+    
                     print("[episode {:>5}] score was {:>5} in {:>5} frame".format(self.episode, reward_sum, frame_count))
                     if reward_sum > highest:
                         highest = reward_sum

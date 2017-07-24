@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
+"""
+Environment register for q-learning
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 
 class environment :
     #------------------------------------------------------------------------------ 
