@@ -124,6 +124,7 @@ class training:
                         while not done:
                             frame_count += 1
                             state = self.state
+                            done = self.done
                             if np.random.rand() < e:
                                 action = random.randrange(0,OUTPUT_SIZE)
                             else:
@@ -131,12 +132,11 @@ class training:
                                     action = np.argmax(mainDQN.predict(state))
                                 except:
                                     print('error, state is {}'.format(state))
-                            
-                            self.pub.publish(action)            #액션 값 퍼블리시
-                            rospy.sleep(0.1)                    #0.1초 딜레이
+                            if done == False:  
+                                self.pub.publish(action)            #액션 값 퍼블리시
+                                rospy.sleep(0.1)                    #0.1초 딜레이
                              
                             next_state = self.state
-                            done = self.done
                                       
                             # Reward Policy
                             try:
@@ -160,7 +160,7 @@ class training:
                             if done:                    
                                 self.pub.publish(STOP)            #액션 값 퍼블리시
                                 self.respawn()                    #리스폰 요청은 한번만.
-                                rospy.sleep(0.15)                    #0.1초 딜레이
+                                rospy.sleep(0.1)                    #0.1초 딜레이
                             
                         print("[episode {:>5}] score was {:>5} in {:>5} frame".format(episode, reward_sum, frame_count))
                         if reward_sum > highest:
