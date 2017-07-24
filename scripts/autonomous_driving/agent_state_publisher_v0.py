@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-
+"""
+Ros node for RPlidar sensor msg pub
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 import rospy
 from sensor_msgs.msg import LaserScan
 from IRL_learning_ros.msg import State 
@@ -48,8 +51,9 @@ class state_pub:
                 if msg.done == True:
                     self.pub.publish(msg)
                     rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
-                    rospy.sleep(0.1)    #0.1초동안 딜레이
-                    
+                    rospy.wait_for_service('gazebo/set_model_state')    #reset 될 때까지 대기
+                    rospy.sleep(0.2)    #0.2초동안 딜레이
+                    self.done = False
                 else:   
                     self.pub.publish(msg)
 

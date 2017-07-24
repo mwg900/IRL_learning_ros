@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-
+"""
+Ros node for Kobuki motor effort pub
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 import rospy
 from std_msgs.msg import Int8
 from geometry_msgs.msg import Twist     #속도제어용 메세지 

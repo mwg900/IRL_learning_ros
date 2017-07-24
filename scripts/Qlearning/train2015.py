@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
+"""
+Ros node for Reinforcement learning
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+
+Original algorithm : Double DQN (Nature 2015)
+http://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
+""" 
 import numpy as np
 import tensorflow as tf
 import random
@@ -7,6 +14,8 @@ import rospy
 import dqn
 import policy
 import register
+import sys
+import csv              
 
 from collections import deque
 
@@ -16,16 +25,14 @@ from std_msgs.msg import Int8
 from argparse import Action
 
 STOP = 99
-#Hyper parameter
 
+#Hyper parameter
 ENVIRONMENT = rospy.get_param('/driving_train/environment', 'v0')
 MODEL_PATH = rospy.get_param('/driving_train/model_path', default = 'model')
 INIT_EPISODE = rospy.get_param('/driving_train/init_episode', default = 0)
-MAX_EPISODE = rospy.get_param('/driving_train/max_episode', default = 5000)
 DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
-
 
 if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
@@ -34,13 +41,17 @@ if ENVIRONMENT == 'v0':
     print('Autonomous_driving training v0 is ready')
     print(register.environment.v0)
 
-if ENVIRONMENT == 'v1':
+elif ENVIRONMENT == 'v1':
     INPUT_SIZE =  register.environment.v1['input_size']
     OUTPUT_SIZE = register.environment.v1['output_size']
     POLICY =      register.environment.v1['policy']
     print('Autonomous_driving training v1 is ready')
     print(register.environment.v1)
 
+else:
+    print("E: you select wrong environment. you must select ex) env:=v1 or env:=v0")
+    sys.exit()
+    
 class training:
     def __init__(self): 
         node_name = "training" 
@@ -52,17 +63,30 @@ class training:
         self.rate = rospy.Rate(5) # 10hz -> 5Hz
         self.F = False 
         self.call_once = 1          #done 플래그는 1번만 셋되게 해줌
+        self.episode = INIT_EPISODE
         
         #self.model_path = "/home/moon/model/driving.ckpt"
         self.model_path = MODEL_PATH +"/"+ENVIRONMENT+"/driving"+ENVIRONMENT+".ckpt"
+        
+        
+        
+    def save_file(self, episode, score):
+        if episode == 1:
+            with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'w') as csvfile:       #새로 쓰기
+                writer = csv.writer(csvfile, delimiter=',') 
+                writer.writerow([episode]+[score]) 
+        else:
+            with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'a') as csvfile:       #추가
+                writer = csv.writer(csvfile, delimiter=',') 
+                writer.writerow([episode]+[score]) 
+    
     #Laser 토픽 콜백
     def state_callback(self, msg):
         self.state = msg.ranges
         self.done = msg.done
         self.F = True
-        #if msg.done == True:
             
-
+    
 
     def train_minibatch(self, DQN, train_batch):
 
@@ -97,7 +121,7 @@ class training:
                 
                 
             init = tf.global_variables_initializer()
-            saver = tf.train.Saver(max_to_keep= 10)
+            saver = tf.train.Saver(max_to_keep= 5)
             sess.run(init)
             
             #------------------------------------------------------------------------------ 
@@ -112,78 +136,77 @@ class training:
             
             print('Traning ready')
             while not rospy.is_shutdown():
-                if self.F is True:
+                while self.F:
+                    self.episode += 1
+                    e = 1. / ((self.episode / 10) + 1)
+                    done = False
+                    reward_sum = 0
+                    frame_count = 0
                     
-                    for episode in range(INIT_EPISODE, INIT_EPISODE + MAX_EPISODE+1):
-                        e = 1. / ((episode / 10) + 1)
-                        done = False
-                        reward_sum = 0
-                        frame_count = 0
-                        
-                        # The DQN traning
-                        while not done:
-                            frame_count += 1
-                            state = self.state
-                            if np.random.rand() < e:
-                                action = random.randrange(0,OUTPUT_SIZE)
-                            else:
-                                try:
-                                    action = np.argmax(mainDQN.predict(state))
-                                except:
-                                    print('error, state is {}'.format(state))
-                            
+                    # The DQN traning
+                    while not done:
+                        frame_count += 1
+                        state = self.state
+                        done = self.done
+                        if np.random.rand() < e:
+                            action = random.randrange(0,OUTPUT_SIZE)
+                        else:
+                            try:
+                                action = np.argmax(mainDQN.predict(state))
+                            except:
+                                print('error, state is {}'.format(state))
+                        if done == False:  
                             self.pub.publish(action)            #액션 값 퍼블리시
                             rospy.sleep(0.1)                    #0.1초 딜레이
-                             
-                            next_state = self.state
-                            done = self.done
-                                      
-                            # Reward Policy
-                            try:
-                                if POLICY == 'autonomous_driving':
-                                    reward = policy.autonomous_driving(action, done)     #reward 리턴
-                            except:
-                                print('there is no policy') 
-                                
+                         
+                        next_state = self.state
+                        done = self.done
+                        # Reward Policy
+                        try:
+                            if POLICY == 'autonomous_driving':
+                                reward = policy.autonomous_driving(action, done)     #reward 리턴
+                        except:
+                            print('there is no policy') 
                             
-                                    
-                            replay_buffer.append((state, action, reward, next_state, done))
-                             
-                            state = next_state
-                            reward_sum += reward
-                            if len(replay_buffer) > BATCH_SIZE:
-                                minibatch = random.sample(replay_buffer, BATCH_SIZE)
-                                loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
-                                
-                            print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
-                            # if 충돌 시 종료 구문
-                            if done:                    
-                                self.pub.publish(STOP)            #액션 값 퍼블리시
-                                self.respawn()                    #리스폰 요청은 한번만.
-                                rospy.sleep(0.15)                    #0.1초 딜레이
-                            
-                        print("[episode {:>5}] score was {:>5} in {:>5} frame".format(episode, reward_sum, frame_count))
-                        if reward_sum > highest:
-                            highest = reward_sum
-                        #------------------------------------------------------------------------------ 
-                        #save model
-                        if episode % 30 == 0:
-                            save_path = saver.save(sess, self.model_path, global_step=episode)
-                            print("Data save in {}".format(save_path))     
-                        #------------------------------------------------------------------------------ 
                         
-                        #Traning complete condition
-                        last_20_episode_reward.append(reward_sum)
-                        if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
-                            avg_reward = np.mean(last_20_episode_reward)
-                            if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
-                                print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
-                                #save data
-                                if episode % 30 == 0:
-                                    save_path = saver.save(sess, self.model_path, global_step=9999999999)
-                                    print("Data save in {}".format(save_path))
-                                break
-                            print("Average score : {:>5}, Highest score : {:>5}".format(avg_reward, highest))
+                                
+                        replay_buffer.append((state, action, reward, next_state, done))
+                         
+                        state = next_state
+                        reward_sum += reward
+                        if len(replay_buffer) > BATCH_SIZE:
+                            minibatch = random.sample(replay_buffer, BATCH_SIZE)
+                            loss = self.train_minibatch(mainDQN, minibatch)     #학습 시작
+                            
+                        print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
+ 
+                    self.pub.publish(STOP)          #액션 값 퍼블리시
+                    self.respawn()                  #리스폰 요청은 한번만
+                    self.F = False                  #플래그 언셋 후 다음 학습까지 대기
+                    
+                    self.save_file(self.episode, reward_sum)            # 파일 저장
+    
+                    print("[episode {:>5}] score was {:>5} in {:>5} frame".format(self.episode, reward_sum, frame_count))
+                    if reward_sum > highest:
+                        highest = reward_sum
+                    #------------------------------------------------------------------------------ 
+                    #save model
+                    if self.episode % 30 == 0:
+                        save_path = saver.save(sess, self.model_path, global_step=self.episode)
+                        print("Data save in {}".format(save_path))     
+                    #------------------------------------------------------------------------------ 
+                    
+                    #Traning complete condition
+                    last_20_episode_reward.append(reward_sum)
+                    if len(last_20_episode_reward) == last_20_episode_reward.maxlen:
+                        avg_reward = np.mean(last_20_episode_reward)
+                        if avg_reward > 1000.0:                 #20번 연속 학습의 평균 스코어가 1000점 이상이면 학습 종료 후 저장
+                            print("Traning Cleared within {} episodes with avg reward {}".format(episode, avg_reward))
+                            #save data
+                            save_path = saver.save(sess, self.model_path, global_step=9999999999)
+                            print("Data save in {}".format(save_path))
+                            break
+                        print("Average score : {:>5}, Highest score : {:>5}".format(avg_reward, highest))
 
 if __name__ == '__main__':
     try:

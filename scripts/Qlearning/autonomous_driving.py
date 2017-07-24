@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
+"""
+Ros node for Autonomous driving using Q-learning
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
+
 import numpy as np
 import tensorflow as tf
 import rospy

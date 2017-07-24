@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-
+"""
+Ros node for RPlidar sensor msg pub
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 import rospy
 from sensor_msgs.msg import LaserScan
 from IRL_learning_ros.msg import State 
@@ -31,7 +34,7 @@ class state_pub:
             if (ang == 265) or (ang == 85):
                 self.range_state = tmp_state
                 
-            if LaserScan.ranges[ang] < 0.21:        # 인식 거리가 21cm 미만일 시 (충돌) 완료플래그 셋
+            if (LaserScan.ranges[ang] != 0) and (LaserScan.ranges[ang] < 0.21):        # 인식 거리가 21cm 미만일 시 (충돌) 완료플래그 셋
                 self.done = True
                 
         self.F = True
@@ -46,7 +49,8 @@ class state_pub:
                 if msg.done == True:
                     self.pub.publish(msg)
                     rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
-                    rospy.sleep(0.1)    #0.1초동안 딜레이
+                    rospy.wait_for_service('gazebo/set_model_state')    #reset 될 때까지 대기
+                    rospy.sleep(0.2)    #0.2초동안 딜레이
                     self.done = False
                 else:   
                     self.pub.publish(msg)

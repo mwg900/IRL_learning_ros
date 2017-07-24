@@ -8,6 +8,7 @@ DQN(Nature-2015)
 "Human-level control through deep reinforcement learning"
 http://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
 """
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.slim.python.slim import learning

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-
+"""
+Policy register for q-learning
+Edited by Jeong-Hwan Moon, IRL, Pusan National UNIV. mwg900@naver.com
+""" 
 
 def autonomous_driving(action, done):
     # Reward Policy
