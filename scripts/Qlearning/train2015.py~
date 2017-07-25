@@ -155,7 +155,7 @@ class training:
             copy_ops = self.get_copy_var_ops(dest_scope_name ="target", src_scope_name ="main")
             sess.run(copy_ops)
             
-            print('Q-learning 2015 Traning ready')
+            print('Traning ready')
             while not rospy.is_shutdown():
                 while self.F:
                     self.episode += 1
