@@ -113,7 +113,7 @@ class training:
             while not rospy.is_shutdown():
                 if self.F is True:
                     
-                    for episode in range(INIT_EPISODE, INIT_EPISODE + MAX_EPISODE+1):
+                    for episode in range(INIT_EPISODE+1, INIT_EPISODE + MAX_EPISODE+1):
                         e = 1. / ((episode / 10) + 1)
                         done = False
                         reward_sum = 0
