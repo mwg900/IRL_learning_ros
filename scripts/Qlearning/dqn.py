@@ -16,7 +16,7 @@ from tensorflow.contrib.slim.python.slim import learning
 
 class DQN:
 
-    def __init__(self, session, input_size, output_size, hidden_layer_size=16, learning_rate=0.001, name="main"):
+    def __init__(self, session, input_size, output_size, hidden_layer_size=8, learning_rate=0.001, name="main"):
         """DQN Agent can
         1) Build network
         2) Predict Q_value given state
@@ -45,9 +45,13 @@ class DQN:
         with tf.variable_scope(self.net_name):
             #with tnesorflow 1.2
             self._X = tf.placeholder(tf.float32, [None, self.input_size], name="input_x")
+            self.d_rate = tf.placeholder(tf.float32)
             l1 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
-            l2 = tf.layers.dense(l1, self.output_size)
-            self._Qpred = l2
+            l1 = tf.layers.dropout(l1, rate = self.d_rate)
+            l2 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
+            l2 = tf.layers.dropout(l2, rate = self.d_rate)
+            l3 = tf.layers.dense(l1, self.output_size)
+            self._Qpred = l3
 
             self._Y = tf.placeholder(tf.float32, shape=[None, self.output_size])
             self._loss = tf.losses.mean_squared_error(self._Y, self._Qpred)
@@ -58,7 +62,7 @@ class DQN:
 
             
     # state에 따라 Q 함수의 값을 돌려주는 함수
-    def predict(self, state):
+    def predict(self, state, d_rate):
         """Returns Q(s, a)
         Args:
             state (np.ndarray): State array, shape (n, input_dim)
@@ -66,10 +70,10 @@ class DQN:
             np.ndarray: Q value array, shape (n, output_dim)
         """
         x = np.reshape(state, [-1, self.input_size])
-        return self.session.run(self._Qpred, feed_dict={self._X: x})
+        return self.session.run(self._Qpred, feed_dict={self._X: x, self.d_rate: d_rate})
 
     # X, Y 입력만으로 트레이닝 업데이트를 해주는 함수
-    def update(self, x_stack, y_stack): 
+    def update(self, x_stack, y_stack, d_rate): 
         """Performs updates on given X and y and returns a result
         Args:
             x_stack (np.ndarray): State array, shape (n, input_dim)
@@ -77,6 +81,6 @@ class DQN:
         Returns:
             list: First element is loss, second element is a result from train step
         """ 
-        return self.session.run([self._loss, self._train], feed_dict = {self._X: x_stack, self._Y: y_stack})
+        return self.session.run([self._loss, self._train], feed_dict = {self._X: x_stack, self._Y: y_stack, self.d_rate : d_rate})
     
     

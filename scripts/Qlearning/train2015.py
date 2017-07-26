@@ -23,6 +23,7 @@ from IRL_learning_ros.srv import SpawnPos
 from IRL_learning_ros.msg import State
 from std_msgs.msg import Int8
 from argparse import Action
+from tensorflow.contrib.keras.python.keras.datasets.cifar import load_batch
 
 STOP = 99
 
@@ -71,7 +72,7 @@ class training:
         
         
         
-    def save_file(self, episode, score):
+    def save_score(self, episode, score):
         if episode == 1:
             with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'w') as csvfile:       #새로 쓰기
                 writer = csv.writer(csvfile, delimiter=',') 
@@ -80,6 +81,44 @@ class training:
             with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'a') as csvfile:       #추가
                 writer = csv.writer(csvfile, delimiter=',') 
                 writer.writerow([episode]+[score]) 
+    
+    
+    def write_batch(self, batch_buffer):
+        with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'w') as csvfile: 
+            writer = csv.writer(csvfile, delimiter='\t') 
+            state = batch_buffer[0][0]
+            action = batch_buffer[0][1]
+            reward = batch_buffer[0][2]
+            next_state = batch_buffer[0][3]
+            done = batch_buffer[0][4]
+            writer.writerow([state]+[action]+[reward]+[next_state]+[done])
+        
+        with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'a') as csvfile: 
+            writer = csv.writer(csvfile, delimiter='\t') 
+            for row in batch_buffer[1:] :
+                state = row[0]
+                action = row[1]
+                reward = row[2]
+                next_state = row[3]
+                done = row[4]
+                writer.writerow([state]+[action]+[reward]+[next_state]+[done])
+
+    def load_batch(self):
+        with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'rb') as csvfile: 
+            buf = deque(maxlen=REPLAY_MEMORY)
+            reader = csv.reader(csvfile, delimiter='\t')
+            row_count = sum(1 for row in reader)
+            print ("batch size is {}".format(row_count))
+            for row in reader:
+                state = row[0]
+                action = row[1]
+                reward = row[2]
+                next_state = row[3]
+                done = row[4]
+                buf.append((state, action, reward, next_state, done))
+        return buf
+
+    
     
     #Laser 토픽 콜백
     def state_callback(self, msg):
@@ -117,21 +156,22 @@ class training:
         done_array = np.array([x[4] for x in train_batch])          #done 배열      [[BATCH_SIZE][1]]
         
         X_batch = state_array                    #state 배열     [[BATCH_SIZE][9]]
-        y_batch = mainDQN.predict(state_array)                # [[BATCH_SIZE][OUTPUT_SIZE]]
+        y_batch = mainDQN.predict(state_array, dropout_rate = 0.5)                # [[BATCH_SIZE][OUTPUT_SIZE]]
         
         
         
-        Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
+        Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array, dropout_rate = 0.5), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
         y_batch[np.arange(len(X_batch)), action_array] = Q_target
         
         # Train our network using target and predicted Q values on each episode
-        loss, _ = mainDQN.update(X_batch, y_batch)
+        loss, _ = mainDQN.update(X_batch, y_batch, dropout_rate = 0.5)
         return loss
 
 
     def talker(self):
         # store the previous observations in replay memory
-        replay_buffer = deque(maxlen=REPLAY_MEMORY)
+        #replay_buffer = deque(maxlen=REPLAY_MEMORY)
+        replay_buffer = self.load_batch()       #파일로부터 배치 로드
         last_20_episode_reward = deque(maxlen=20)
         highest = -9999.
         with tf.Session() as sess:
@@ -173,7 +213,7 @@ class training:
                             action = random.randrange(0,OUTPUT_SIZE)
                         else:
                             try:
-                                action = np.argmax(mainDQN.predict(state))
+                                action = np.argmax(mainDQN.predict(state, dropout_rate = 0.5))
                             except:
                                 print('error, state is {}'.format(state))
                         if done == False:  
@@ -192,9 +232,6 @@ class training:
                         
                                 
                         replay_buffer.append((state, action, reward, next_state, done))
-                         
-
-                        
                         if len(replay_buffer) > BATCH_SIZE:
                             minibatch = random.sample(replay_buffer, BATCH_SIZE)
                             loss = self.train_minibatch(mainDQN, targetDQN, minibatch)   #학습
@@ -205,12 +242,13 @@ class training:
                         state = next_state
                         reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
- 
+                    
                     self.pub.publish(STOP)          #액션 값 퍼블리시
                     self.respawn()                  #리스폰 요청은 한번만
                     self.F = False                  #플래그 언셋 후 다음 학습까지 대기
-                    
-                    self.save_file(self.episode, reward_sum)            # 파일 저장
+                    if len(replay_buffer) == replay_buffer.maxlen:
+                        self.write_batch(replay_buffer)                     # 배치 저장
+                    self.save_score(self.episode, reward_sum)            # 파일 저장
     
                     print("[episode {:>5}] score was {:>5} in {:>5} frame".format(self.episode, reward_sum, frame_count))
                     if reward_sum > highest:
