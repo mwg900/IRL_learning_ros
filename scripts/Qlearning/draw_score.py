@@ -27,11 +27,11 @@ class draw_plot:
         
         ax.relim() 
         ax.autoscale_view(True,True,True)
-        self.fig.canvas.draw()
+        #self.fig.canvas.draw()
         plt.xlabel("episode")
         plt.ylabel("score")
         plt.show(block=False)
-        plt.plot([1,5000],[1000,1000], 'k-')
+        
     #Laser 토픽 콜백
     
     def load_file(self):
@@ -53,9 +53,13 @@ class draw_plot:
 
             x, y = self.load_file()
             # set the new data
+            if x:
+                tmp = max(x)
+            else:
+                tmp = 5
             self.li.set_xdata(x)
             self.li.set_ydata(y)
-
+            plt.plot([1,tmp],[1000,1000], 'k-')
             self.fig.canvas.draw()
             self.rate.sleep()
         

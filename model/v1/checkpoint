@@ -1,6 +1,0 @@
-model_checkpoint_path: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4590"
-all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4470"
-all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4500"
-all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4530"
-all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4560"
-all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-4590"

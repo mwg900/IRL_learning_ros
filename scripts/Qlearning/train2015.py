@@ -156,15 +156,15 @@ class training:
         done_array = np.array([x[4] for x in train_batch])          #done 배열      [[BATCH_SIZE][1]]
         
         X_batch = state_array                    #state 배열     [[BATCH_SIZE][9]]
-        y_batch = mainDQN.predict(state_array, dropout_rate = 0.5)                # [[BATCH_SIZE][OUTPUT_SIZE]]
+        y_batch = mainDQN.predict(state_array, 0.5)                # [[BATCH_SIZE][OUTPUT_SIZE]]
         
         
         
-        Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array, dropout_rate = 0.5), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
+        Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array, 0.5), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
         y_batch[np.arange(len(X_batch)), action_array] = Q_target
         
         # Train our network using target and predicted Q values on each episode
-        loss, _ = mainDQN.update(X_batch, y_batch, dropout_rate = 0.5)
+        loss, _ = mainDQN.update(X_batch, y_batch, 0.5)
         return loss
 
 
@@ -213,7 +213,7 @@ class training:
                             action = random.randrange(0,OUTPUT_SIZE)
                         else:
                             try:
-                                action = np.argmax(mainDQN.predict(state, dropout_rate = 0.5))
+                                action = np.argmax(mainDQN.predict(state, 0.5))
                             except:
                                 print('error, state is {}'.format(state))
                         if done == False:  
