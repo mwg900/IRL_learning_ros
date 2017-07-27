@@ -18,12 +18,12 @@ def autonomous_driving(action, done):
 
     return reward
     
-def autonomous_driving1(action, done):
+def autonomous_driving1(action, done):  #2017/7/29
     # Reward Policy
     if action == 0:
         reward = 5
     elif (action == 1) or (action == 2):
-        reward = -1
+        reward = 0.3
     elif (action == 3) or (action == 4):
         reward = -10
     if done:            # 충돌  

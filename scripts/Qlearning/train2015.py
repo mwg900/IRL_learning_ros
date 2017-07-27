@@ -105,17 +105,32 @@ class training:
 
     def load_batch(self):
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'rb') as csvfile: 
-            buf = deque(maxlen=REPLAY_MEMORY)
             reader = csv.reader(csvfile, delimiter='\t')
             row_count = sum(1 for row in reader)
             print ("batch size is {}".format(row_count))
-            for row in reader:
-                state = row[0]
-                action = row[1]
-                reward = row[2]
-                next_state = row[3]
-                done = row[4]
-                buf.append((state, action, reward, next_state, done))
+            
+        if row_count > 1:
+            with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'rb') as csvfile: 
+                print("loading minibatch....")
+                buf = deque(maxlen=REPLAY_MEMORY)
+                reader = csv.reader(csvfile, delimiter='\t')
+                for row in reader:
+                    state = row[0]
+                    state = state.replace("(","")
+                    state = state.replace(")","")
+                    state = state.split(', ')
+                    
+                    action = row[1]
+                    reward = row[2]
+                    
+                    next_state = row[3]
+                    next_state = next_state.replace("(","")
+                    next_state = next_state.replace(")","")
+                    next_state = next_state.split(', ')
+                    
+                    done = row[4]
+                    buf.append((state, action, reward, next_state, done))
+        else: buf = deque(maxlen=REPLAY_MEMORY)
         return buf
 
     
@@ -226,6 +241,8 @@ class training:
                         try:
                             if POLICY == 'autonomous_driving':
                                 reward = policy.autonomous_driving(action, done)     #reward 리턴
+                            elif POLICY == 'autonomous_driving1':
+                                reward = policy.autonomous_driving1(action, done)     #reward 리턴
                         except:
                             print('there is no policy') 
                             
@@ -242,12 +259,11 @@ class training:
                         state = next_state
                         reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
-                    
+
                     self.pub.publish(STOP)          #액션 값 퍼블리시
                     self.respawn()                  #리스폰 요청은 한번만
                     self.F = False                  #플래그 언셋 후 다음 학습까지 대기
-                    if len(replay_buffer) == replay_buffer.maxlen:
-                        self.write_batch(replay_buffer)                     # 배치 저장
+                    
                     self.save_score(self.episode, reward_sum)            # 파일 저장
     
                     print("[episode {:>5}] score was {:>5} in {:>5} frame, batch_size:{:>5}".format(self.episode, reward_sum, frame_count, len(replay_buffer)))
@@ -256,7 +272,9 @@ class training:
                     #------------------------------------------------------------------------------ 
                     #save model
                     if self.episode % 30 == 0:
-                        save_path = saver.save(sess, self.model_path, global_step=self.episode)
+                        if len(replay_buffer) == replay_buffer.maxlen:
+                            self.write_batch(replay_buffer)                     # 배치 저장
+                        save_path = saver.save(sess, self.model_path, global_step=self.episode) #모델 저장
                         print("Data save in {}".format(save_path))     
                     #------------------------------------------------------------------------------ 
                     
@@ -267,10 +285,10 @@ class training:
                         result = 0
                     
                     last_20_episode_reward.append(result)
-                    if len(last_20_episode_reward) == last_20_episode_reward.maxlen:            #20번 이상 시도
+                    if (len(last_20_episode_reward) == last_20_episode_reward.maxlen):            #20번 이상 시도
                         success_rate = np.mean(last_20_episode_reward) * 100
                         
-                        if success_rate > 95.0:                 #20번 연속 학습의 평균 성공률이 90% 이상이면 학습 종료 후 저장
+                        if success_rate > 90.0:                 #20번 연속 학습의 평균 성공률이 90% 이상이면 학습 종료 후 저장
                             print("Traning Cleared within {} episodes with avg rate {}".format(episode, success_rate))
                             #save data
                             save_path = saver.save(sess, self.model_path, global_step=9999999999)

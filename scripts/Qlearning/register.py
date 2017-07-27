@@ -21,7 +21,7 @@ class environment :
     v1 = {          
             'input_size'    :   11,                    # [95, 120, 135, 150, 165, 180, 195, 210, 225, 240, 265] 도의 거리값
             'output_size'   :   5,
-            'policy'        :   'autonomous_driving'
+            'policy'        :   'autonomous_driving1'
          }
     
     
