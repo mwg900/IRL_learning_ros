@@ -73,15 +73,15 @@ class training:
         
         
         
-    def save_score(self, episode, score):
+    def save_score(self, episode, score, cost):
         if episode == 1:
             with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'w') as csvfile:       #새로 쓰기
                 writer = csv.writer(csvfile, delimiter=',') 
-                writer.writerow([episode]+[score]) 
+                writer.writerow([episode]+[score]+[cost]) 
         else:
             with open(MODEL_PATH+"/result"+"/"+ENVIRONMENT+'/score.csv', 'a') as csvfile:       #추가
                 writer = csv.writer(csvfile, delimiter=',') 
-                writer.writerow([episode]+[score]) 
+                writer.writerow([episode]+[score]+[cost]) 
     
     
     def write_batch(self, batch_buffer):
@@ -190,6 +190,7 @@ class training:
         replay_buffer = self.load_batch()       #파일로부터 배치 로드
         last_20_episode_reward = deque(maxlen=20)
         highest = -9999.
+        loss = 10.
         with tf.Session() as sess:
             mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, learning_rate = LEARNING_RATE, name = "main")    #DQN class 선언
             targetDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, learning_rate = LEARNING_RATE, name ="target")
@@ -265,13 +266,15 @@ class training:
                     self.respawn()                  #리스폰 요청은 한번만
                     self.F = False                  #플래그 언셋 후 다음 학습까지 대기
                     
-                    self.save_score(self.episode, reward_sum)            # 파일 저장
+                    
     
                     print("[episode {:>5}] score was {:>5} in {:>5} frame, batch_size:{:>5}".format(self.episode, reward_sum, frame_count, len(replay_buffer)))
                     if reward_sum > highest:
                         highest = reward_sum
                     #------------------------------------------------------------------------------ 
                     #save model
+                    self.save_score(self.episode, reward_sum, loss)            # score, cost 저장
+                    
                     if self.episode % 30 == 0:
                         self.write_batch(replay_buffer)                     # 배치 저장
                         save_path = saver.save(sess, self.model_path, global_step=self.episode) #모델 저장

@@ -15,7 +15,6 @@ from tensorflow.contrib.slim.python.slim import learning
 
 
 class DQN:
-
     def __init__(self, session, input_size, output_size, hidden_layer_size=8, learning_rate=0.001, name="main"):
         """DQN Agent can
         1) Build network
@@ -44,8 +43,9 @@ class DQN:
         """
         with tf.variable_scope(self.net_name):
             #with tnesorflow 1.2
-            self._X = tf.placeholder(tf.float32, [None, self.input_size], name="input_x")
             self.d_rate = tf.placeholder(tf.float32)
+            self._X = tf.placeholder(tf.float32, [None, self.input_size], name="input_x")
+            #self._X = tf.layers.batch_normalization(self._X)
             l1 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
             l1 = tf.layers.dropout(l1, rate = self.d_rate)
             l2 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
