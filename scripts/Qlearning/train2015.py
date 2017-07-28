@@ -119,8 +119,11 @@ class training:
                 reader = csv.reader(csvfile, delimiter='\t')
                 for row in reader:
                     state = row[0]
+                    #Parsing
                     state = state.replace("(","")
                     state = state.replace(")","")
+                    state = state.replace("[","")
+                    state = state.replace("]","")
                     state = [float(x) for x in state.split(', ')]
                     tuple(state)
                     
@@ -131,6 +134,8 @@ class training:
                     next_state = row[3]
                     next_state = next_state.replace("(","")
                     next_state = next_state.replace(")","")
+                    next_state = next_state.replace("[","")
+                    next_state = next_state.replace("]","")
                     next_state = [float(x) for x in next_state.split(', ')]
                     tuple(next_state)
                     
