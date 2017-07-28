@@ -121,22 +121,18 @@ class training:
                     state = row[0]
                     state = state.replace("(","")
                     state = state.replace(")","")
-                    state = state.split(', ')
-                    state = np.array(state)
-                    #state = state.astype(np.float)
+                    state = [float(x) for x in state.split(', ')]
+                    tuple(state)
                     
                     action = int(row[1])
-                    action = np.array(action)
                     
                     reward = float(row[2])
-                    reward = np.array(reward)
                     
                     next_state = row[3]
                     next_state = next_state.replace("(","")
                     next_state = next_state.replace(")","")
-                    next_state = next_state.split(', ')
-                    next_state = np.array(next_state)
-                    #next_state = next_state.astype(np.float)
+                    next_state = [float(x) for x in next_state.split(', ')]
+                    tuple(next_state)
                     
                     done = row[4]
                     if done == 'True':
@@ -145,7 +141,8 @@ class training:
                         done = False
                     
                     buf.append((state, action, reward, next_state, done))
-                print(buf[0][0][5])
+                   
+                #print(buf)
         else: 
             buf = deque(maxlen=REPLAY_MEMORY)
         return buf
@@ -266,8 +263,8 @@ class training:
                             print('there is no policy') 
                             
                         
-                                
                         replay_buffer.append((state, action, reward, next_state, done))
+                        #print(replay_buffer)
                         if len(replay_buffer) > BATCH_SIZE:
                             minibatch = random.sample(replay_buffer, BATCH_SIZE)
                             loss = self.train_minibatch(mainDQN, targetDQN, minibatch)   #학습
@@ -310,7 +307,7 @@ class training:
                     if (len(last_20_episode_reward) == last_20_episode_reward.maxlen):            #20번 이상 시도
                         success_rate = np.mean(last_20_episode_reward) * 100
                         
-                        if success_rate > 90.0:                 #20번 연속 학습의 평균 성공률이 90% 이상이면 학습 종료 후 저장
+                        if success_rate > 50.0:                 #20번 연속 학습의 평균 성공률이 50% 이상이면 학습 종료 후 저장
                             print("Traning Cleared within {} episodes with avg rate {}".format(episode, success_rate))
                             #save data
                             save_path = saver.save(sess, self.model_path, global_step=9999999999)
