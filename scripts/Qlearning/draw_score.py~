@@ -20,20 +20,16 @@ class draw_plot:
         rospy.init_node(node_name)
         #ros topic 구독자 설정 및 콜백함수 정의
         self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111)
+        ax = self.fig.add_subplot(111)
         self.rate = rospy.Rate(1) # 10hz
-        x, y, cnt = self.load_file()
-        print(cnt)
-        axes = plt.gca()
-        axes.set_xlim([0,cnt+500])
-        axes.set_ylim([-500,1200])
-        self.li, = self.ax.plot(x, y)
+        x, y = self.load_file()
+        self.li, = ax.plot(x, y)
         
-        self.ax.relim() 
-        self.ax.autoscale_view(True,True,True)
+        ax.relim() 
+        ax.autoscale_view(True,True,True)
+        #self.fig.canvas.draw()
         plt.xlabel("episode")
         plt.ylabel("score")
-
         plt.show(block=False)
         
     #Laser 토픽 콜백
@@ -42,27 +38,28 @@ class draw_plot:
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+'score.csv', 'rb') as csvfile: 
             x = []
             y = []
-            reader = csv.reader(csvfile, delimiter=',')
-            reader = csv.reader(csvfile, delimiter=',')
             
+            reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
-                x.append(int(row[0]))
-                y.append(int(row[1]))
-            row_count = max(x)  
+                x.append(row[0])
+                y.append(row[1])
+    
             x = np.array(x)
             y = np.array(y)
-            
-            return x, y, row_count
+            return x, y
         
     def drawer(self):
         while not rospy.is_shutdown():
 
-            x, y, cnt = self.load_file()
+            x, y = self.load_file()
             # set the new data
+            if x:
+                tmp = max(x)
+            else:
+                tmp = 5
             self.li.set_xdata(x)
             self.li.set_ydata(y)
-            plt.plot([1,cnt+500],[1000,1000], 'k-')
-    
+            plt.plot([1,tmp],[1000,1000], 'k-')
             self.fig.canvas.draw()
             self.rate.sleep()
         

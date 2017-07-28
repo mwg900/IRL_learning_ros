@@ -95,7 +95,7 @@ class training:
         
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'a') as csvfile: 
             writer = csv.writer(csvfile, delimiter='\t') 
-            for row in batch_buffer[1:] :
+            for row in batch_buffer:
                 state = row[0]
                 action = row[1]
                 reward = row[2]
@@ -250,7 +250,7 @@ class training:
                         self.write_batch(replay_buffer)                     # 배치 저장
                     self.save_score(self.episode, reward_sum)            # 파일 저장
     
-                    print("[episode {:>5}] score was {:>5} in {:>5} frame".format(self.episode, reward_sum, frame_count))
+                    print("[episode {:>5}] score was {:>5} in {:>5} frame, batch_size:{:>5}".format(self.episode, reward_sum, frame_count, len(replay_buffer)))
                     if reward_sum > highest:
                         highest = reward_sum
                     #------------------------------------------------------------------------------ 
