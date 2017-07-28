@@ -43,16 +43,15 @@ class draw_plot:
             x = []
             y = []
             reader = csv.reader(csvfile, delimiter=',')
-            reader = csv.reader(csvfile, delimiter=',')
             
             for row in reader:
                 x.append(int(row[0]))
-                y.append(int(row[1]))
+                y.append(float(row[1]))
             row_count = max(x)  
             x = np.array(x)
             y = np.array(y)
             
-            return x, y, row_count
+        return x, y, row_count
         
     def drawer(self):
         while not rospy.is_shutdown():

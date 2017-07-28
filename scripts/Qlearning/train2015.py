@@ -31,6 +31,7 @@ STOP = 99
 ENVIRONMENT = rospy.get_param('/driving_train/environment', 'v0')
 MODEL_PATH = rospy.get_param('/driving_train/model_path', default = 'model')
 INIT_EPISODE = rospy.get_param('/driving_train/init_episode', default = 0)
+LEARNING_RATE = rospy.get_param('/driving_train/learning_rate', default = 0.001)
 DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
@@ -190,8 +191,8 @@ class training:
         last_20_episode_reward = deque(maxlen=20)
         highest = -9999.
         with tf.Session() as sess:
-            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, name = "main")    #DQN class 선언
-            targetDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, name ="target")
+            mainDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, learning_rate = LEARNING_RATE, name = "main")    #DQN class 선언
+            targetDQN = dqn.DQN(sess, INPUT_SIZE, OUTPUT_SIZE, learning_rate = LEARNING_RATE, name ="target")
             
             init = tf.global_variables_initializer()
             saver = tf.train.Saver(max_to_keep= 5)
@@ -272,8 +273,7 @@ class training:
                     #------------------------------------------------------------------------------ 
                     #save model
                     if self.episode % 30 == 0:
-                        if len(replay_buffer) == replay_buffer.maxlen:
-                            self.write_batch(replay_buffer)                     # 배치 저장
+                        self.write_batch(replay_buffer)                     # 배치 저장
                         save_path = saver.save(sess, self.model_path, global_step=self.episode) #모델 저장
                         print("Data save in {}".format(save_path))     
                     #------------------------------------------------------------------------------ 
