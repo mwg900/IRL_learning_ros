@@ -48,9 +48,9 @@ class DQN:
             #self._X = tf.layers.batch_normalization(self._X)
             l1 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
             l1 = tf.layers.dropout(l1, rate = self.d_rate)
-            l2 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
+            l2 = tf.layers.dense(l1, h_size, activation=tf.nn.relu)
             l2 = tf.layers.dropout(l2, rate = self.d_rate)
-            l3 = tf.layers.dense(l1, self.output_size)
+            l3 = tf.layers.dense(l2, self.output_size)
             self._Qpred = l3
 
             self._Y = tf.placeholder(tf.float32, shape=[None, self.output_size])
@@ -82,5 +82,3 @@ class DQN:
             list: First element is loss, second element is a result from train step
         """ 
         return self.session.run([self._loss, self._train], feed_dict = {self._X: x_stack, self._Y: y_stack, self.d_rate : d_rate})
-    
-    

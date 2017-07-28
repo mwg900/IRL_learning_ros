@@ -35,7 +35,7 @@ LEARNING_RATE = rospy.get_param('/driving_train/learning_rate', default = 0.001)
 DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
-TARGET_UPDATE_FREQUENCY = 5
+TARGET_UPDATE_FREQUENCY = 100
 
 if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
@@ -104,6 +104,7 @@ class training:
                 done = row[4]
                 writer.writerow([state]+[action]+[reward]+[next_state]+[done])
 
+
     def load_batch(self):
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'rb') as csvfile: 
             reader = csv.reader(csvfile, delimiter='\t')
@@ -120,18 +121,32 @@ class training:
                     state = state.replace("(","")
                     state = state.replace(")","")
                     state = state.split(', ')
+                    state = np.array(state)
+                    state = state.astype(np.float)
                     
-                    action = row[1]
-                    reward = row[2]
+                    action = int(row[1])
+                    action = np.array(action)
+                    
+                    reward = float(row[2])
+                    reward = np.array(reward)
                     
                     next_state = row[3]
                     next_state = next_state.replace("(","")
                     next_state = next_state.replace(")","")
                     next_state = next_state.split(', ')
+                    next_state = np.array(next_state)
+                    next_state = next_state.astype(np.float)
                     
                     done = row[4]
+                    if done == 'True':
+                        done = True
+                    else:
+                        done = False
+                    
                     buf.append((state, action, reward, next_state, done))
-        else: buf = deque(maxlen=REPLAY_MEMORY)
+                #print(buf[0][0]+buf[0][1])
+        else: 
+            buf = deque(maxlen=REPLAY_MEMORY)
         return buf
 
     
@@ -170,20 +185,20 @@ class training:
         reward_array = np.array([x[2] for x in train_batch])        #reward 배열    [[BATCH_SIZE][1]]
         next_state_array = np.vstack([x[3] for x in train_batch])   #nstate 배열    [[BATCH_SIZE][INPUT_SIZE]]
         done_array = np.array([x[4] for x in train_batch])          #done 배열      [[BATCH_SIZE][1]]
-        
+         
         X_batch = state_array                    #state 배열     [[BATCH_SIZE][9]]
         y_batch = mainDQN.predict(state_array, 0.5)                # [[BATCH_SIZE][OUTPUT_SIZE]]
-        
-        
-        
+         
+         
+         
         Q_target = reward_array + DISCOUNT_RATE * np.max(targetDQN.predict(next_state_array, 0.5), axis=1) * ~done_array       # not done 플래그를 곱해주어 done일 시  reward를 제외한 Q의 값은 0으로 만들어준다.
+         
         y_batch[np.arange(len(X_batch)), action_array] = Q_target
-        
+         
         # Train our network using target and predicted Q values on each episode
         loss, _ = mainDQN.update(X_batch, y_batch, 0.5)
         return loss
-
-
+    
     def talker(self):
         # store the previous observations in replay memory
         #replay_buffer = deque(maxlen=REPLAY_MEMORY)

@@ -55,21 +55,26 @@ class draw_plot:
     #Laser 토픽 콜백
     
     def load_file(self):
+        x = []
+        y1 = []
+        y2 =[]
+        episode_count = 0
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+'score.csv', 'rb') as csvfile: 
-            x = []
-            y1 = []
-            y2 =[]
-            reader = csv.reader(csvfile, delimiter=',')
             
-            for row in reader:
-                x.append(int(row[0]))
-                y1.append(float(row[1]))
-                y2.append(float(row[2]))
-            row_count = max(x)  
-            x = np.array(x)
-            y1 = np.array(y1)
-            y2= np.array(y2)
-        return x, y1, y2 ,row_count
+            reader = csv.reader(csvfile, delimiter=',')
+            row_count = sum(1 for row in reader)
+        with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+'score.csv', 'rb') as csvfile: 
+            reader = csv.reader(csvfile, delimiter=',')
+            if row_count > 1:
+                for row in reader:
+                    x.append(int(row[0]))
+                    y1.append(float(row[1]))
+                    y2.append(float(row[2]))
+                episode_count = max(x)  
+                x = np.array(x)
+                y1 = np.array(y1)
+                y2= np.array(y2)
+        return x, y1, y2 ,episode_count
         
     def drawer(self):
         while not rospy.is_shutdown():
