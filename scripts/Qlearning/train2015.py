@@ -35,7 +35,8 @@ LEARNING_RATE = rospy.get_param('/driving_train/learning_rate', default = 0.001)
 DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
-TARGET_UPDATE_FREQUENCY = 100
+TARGET_UPDATE_FREQUENCY = rospy.get_param('/driving_train/target_update_freq', default = 10)
+
 
 if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
