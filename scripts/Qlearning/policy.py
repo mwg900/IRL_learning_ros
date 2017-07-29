@@ -23,11 +23,11 @@ def autonomous_driving1(action, done):  #2017/7/29/1
     if action == 0:
         reward = 5
     elif (action == 1) or (action == 2):
-        reward = 0.3
+        reward = -1
     elif (action == 3) or (action == 4):
-        reward = -3
+        reward = -10
     if done:            # 충돌  
-        reward = -5
+        reward = -100
 
     return reward
 

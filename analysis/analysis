@@ -1,0 +1,16 @@
+1.
+
+2.
+
+3.
+Drop out 적용, 
+충돌 시 reward -> -5로 변화 및 전체적인 reward 변화... 학습 더욱 안됨
+
+4.
+learning_rate 감소하기 0.002 -> 0.001
+discount_rate 0.9 -> 0.99
+policy 다시 되돌려서 실험
+
+learning_rate 높은걸로 추정. cost값 너무 높아짐
+좀더 낮추어서 실험 0.001 -> 0.0005
+update freq도 10으로 낮춤

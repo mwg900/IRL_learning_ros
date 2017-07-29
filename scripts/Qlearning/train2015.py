@@ -123,7 +123,7 @@ class training:
                     state = state.replace(")","")
                     state = state.split(', ')
                     state = np.array(state)
-                    state = state.astype(np.float)
+                    #state = state.astype(np.float)
                     
                     action = int(row[1])
                     action = np.array(action)
@@ -136,7 +136,7 @@ class training:
                     next_state = next_state.replace(")","")
                     next_state = next_state.split(', ')
                     next_state = np.array(next_state)
-                    next_state = next_state.astype(np.float)
+                    #next_state = next_state.astype(np.float)
                     
                     done = row[4]
                     if done == 'True':
@@ -145,7 +145,7 @@ class training:
                         done = False
                     
                     buf.append((state, action, reward, next_state, done))
-                #print(buf[0][0]+buf[0][1])
+                print(buf[0][0][5])
         else: 
             buf = deque(maxlen=REPLAY_MEMORY)
         return buf
@@ -229,6 +229,7 @@ class training:
             sess.run(copy_ops)
             
             print('Q-learning 2015 Traning ready')
+            print('l_rate : {}, update_freq : {}, batch_size : {}'.format(LEARNING_RATE, TARGET_UPDATE_FREQUENCY, BATCH_SIZE))
             while not rospy.is_shutdown():
                 while self.F:
                     self.episode += 1
@@ -277,9 +278,11 @@ class training:
                         state = next_state
                         reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
-
                     self.pub.publish(STOP)          #액션 값 퍼블리시
+                    rospy.sleep(0.2)
                     self.respawn()                  #리스폰 요청은 한번만
+                    rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
+                    rospy.sleep(0.1)
                     self.F = False                  #플래그 언셋 후 다음 학습까지 대기
                     
                     
