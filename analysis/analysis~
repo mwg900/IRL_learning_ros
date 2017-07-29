@@ -13,4 +13,21 @@ policy 다시 되돌려서 실험
 
 learning_rate 높은걸로 추정. cost값 너무 높아짐
 좀더 낮추어서 실험 0.001 -> 0.0005
+update freq도 10으로 낮춤
 
+5. 
+learning_rate 감소하기 0.001 -> 0.0005
+discount_rate 0.9 -> 0.99
+policy 다시 되돌려서 실험
+
+결과
+learning_rate 높은걸로 추정. cost값 너무 높아짐
+좀더 낮추어서 실험 0.001 -> 0.0005
+update freq도 10으로 낮춤
+
+
+결과
+learning_rate 낮은거였음.. 학습 너무 늦게함
+다시 0.01 100배 증가
+
+결과값 지켜보기로 결정

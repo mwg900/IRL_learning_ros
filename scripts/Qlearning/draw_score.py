@@ -17,7 +17,7 @@ class draw_plot:
         node_name = "draw_plot" 
         rospy.init_node(node_name)
 
-        x, y1, y2, cnt = self.load_file()
+        x, y1, y2, cnt, y3, y4 = self.load_file()
         #------------------------------------------------------------------------------ 
         # Figure 1
         #------------------------------------------------------------------------------ 
@@ -26,6 +26,7 @@ class draw_plot:
         self.cost_ax.set_xlabel('episode')
         self.cost_ax.set_ylabel('cost')
         axes_1 = self.cost.gca()
+        #cnt = 0
         axes_1.set_xlim([0,cnt+500])
         axes_1.set_ylim([0,300])
         
@@ -43,6 +44,8 @@ class draw_plot:
         axes.set_ylim([-500,1200])
         self.li_1, = self.score_ax.plot(x, y1)
         self.li_2, = self.cost_ax.plot(x, y2)
+        self.li_3, = self.cost_ax.plot(x, y3)
+        self.li_4, = self.score_ax.plot(x, y4)
         #self.ax.relim() 
         #self.ax.autoscale_view(True,True,True)
         plt.xlabel("episode")
@@ -56,12 +59,15 @@ class draw_plot:
     def load_file(self):
         x = []
         y1 = []
-        y2 =[]
+        y2 = []
+        y3 = []
+        y4 = []
         episode_count = 0
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+'score.csv', 'rb') as csvfile: 
             
             reader = csv.reader(csvfile, delimiter=',')
             row_count = sum(1 for row in reader)
+        epi = 1
         if row_count > 1:
             with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+'score.csv', 'rb') as csvfile: 
                 reader = csv.reader(csvfile, delimiter=',')
@@ -70,25 +76,43 @@ class draw_plot:
                         x.append(int(row[0]))
                         y1.append(float(row[1]))
                         y2.append(float(row[2]))
-                    episode_count = max(x)  
+                        avr = sum(y2)/epi   #cost
+                        avr2 = sum(y1)/epi  #score
+                        
+                        y3.append(avr)
+                        y4.append(avr2)
+                        epi+=1
+                    episode_count = max(x)
+                    
+                    
                     x = np.array(x)
                     y1 = np.array(y1)
                     y2= np.array(y2)
-        return x, y1, y2 ,episode_count
+                    y3 = np.array(y3)            #평균
+                    y4 = np.array(y4)
+                    
+        return x, y1, y2 ,episode_count, y3, y4
         
     def drawer(self):
         while not rospy.is_shutdown():
 
-            x, y1, y2,cnt = self.load_file()
+            x, y1, y2,cnt,y3, y4 = self.load_file()
             # set the new data
             self.li_1.set_xdata(x)
             self.li_1.set_ydata(y1)
             self.li_2.set_xdata(x)
             self.li_2.set_ydata(y2)
-            plt.plot([1,cnt+500],[1000,1000], 'k-', linestyle='--')
-    
+            
             self.cost.canvas.draw()
-            #self.cost.canvas.draw()
+            self.li_3.set_color('red')
+            self.li_3.set_xdata(x)
+            self.li_3.set_ydata(y3)
+            plt.plot([1,cnt+500],[1000,1000], 'k-', linestyle='--')
+            
+            self.li_4.set_color('red')
+            self.li_4.set_xdata(x)
+            self.li_4.set_ydata(y4)
+            self.cost.canvas.draw()
             self.rate.sleep()
         
 if __name__ == '__main__':

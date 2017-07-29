@@ -280,12 +280,6 @@ class training:
                         state = next_state
                         reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
-                    self.pub.publish(STOP)          #액션 값 퍼블리시
-                    rospy.sleep(0.2)
-                    self.respawn()                  #리스폰 요청은 한번만
-                    rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
-                    rospy.sleep(0.1)
-                    self.F = False                  #플래그 언셋 후 다음 학습까지 대기
                     
                     
     
@@ -307,6 +301,13 @@ class training:
                         result = 1
                     else:
                         result = 0
+                    self.pub.publish(STOP)          #액션 값 퍼블리시
+                    rospy.sleep(0.2)
+                    self.respawn()                  #리스폰 요청은 한번만
+                    rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
+                    rospy.sleep(0.1)
+                    self.F = False                  #플래그 언셋 후 다음 학습까지 대기
+                    
                     
                     last_20_episode_reward.append(result)
                     if (len(last_20_episode_reward) == last_20_episode_reward.maxlen):            #20번 이상 시도
@@ -319,6 +320,7 @@ class training:
                             print("Data save in {}".format(save_path))
                             break
                         print("Success_rate : {:>5}%, Highest score : {:>5}".format(success_rate, highest))
+                        
 
 
 if __name__ == '__main__':

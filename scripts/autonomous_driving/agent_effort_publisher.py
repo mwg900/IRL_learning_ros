@@ -42,6 +42,8 @@ class state_pub:
             vel.angular.z = 2.0
             
         elif msg.data == 99: # 정지(리셋)
+            vel.linear.x = 0.0
+            vel.angular.z = 0.0
             self.motor_pub.publish(MotorPower.OFF)
             self.motor_pub.publish(MotorPower.ON)
         self.vel_pub.publish(vel)   #속도값 퍼블리시
