@@ -2,7 +2,6 @@
 <launch>
   <!-- include gazebo world -->
   <!-- these are the arguments you can pass this launch file, for example paused:=true -->
-  <arg name="env"   default="v0"/>
 
   <arg name="paused" default="true"/>
   <arg name="use_sim_time" default="true"/>
@@ -20,23 +19,10 @@
     <arg name="headless" value="$(arg headless)"/>
     <arg name="world_name" value="$(arg world_file)"/>
   </include>
+  <!-- simulation model manage node -->
+  <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py"/>
 
   <!-- include spec of agent -->
   <include file="$(find IRL_learning_ros)/launch/includes/kobuki_rplidar.launch.xml"/>
-  <!-- include Deep Q-learning Network simulation 
-  <include file="$(find IRL_learning_ros)/launch/includes/deepQlearning.launch"/>-->
 
-
-  <!-- Spawn cylinder(slave) 
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find mobile_robot_sim)/urdf/slave_cylinder.urdf -urdf -x 1 -y 1 -model slave" />-->
-
-  <!-- run nodes 
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="30.0" /> 
-  </node>-->
-  <node pkg="IRL_learning_ros" type="agent_state_publisher_$(arg env).py" name="agent_state_publisher$(arg env)">
-	<param name="inversed" 	value="false" />
-  </node>
-  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher">  
-  </node>
 </launch>

@@ -2,8 +2,6 @@
 <launch>
   <arg name = "data" default = "0"/>
   <arg name = "env" default = "v0"/>
-  <!-- simulation model manage node -->
-  <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py"/>
   <!-- training node -->
   <node name="driving_train"	pkg="IRL_learning_ros"  type="train2015.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />
@@ -21,6 +19,10 @@
 
 
   </node>
+  <node pkg="IRL_learning_ros" type="agent_state_publisher_$(arg env).py" name="agent_state_publisher_$(arg env)">
+	<param name="inversed" 	value="false" />
+  </node>
+  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>  
   <!-- draw plot -->
   <node name="draw_result"	pkg="IRL_learning_ros"  type="draw_score.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />

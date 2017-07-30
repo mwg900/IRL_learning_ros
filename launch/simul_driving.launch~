@@ -1,8 +1,5 @@
 <!---->
 <launch>
-  <!-- include gazebo world -->
-  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
-
   <arg name="paused" default="true"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
@@ -19,10 +16,13 @@
     <arg name="headless" value="$(arg headless)"/>
     <arg name="world_name" value="$(arg world_file)"/>
   </include>
+  
   <!-- simulation model manage node -->
   <node name="simulation_io"	pkg="IRL_learning_ros"  type="sim.py"/>
-
-  <!-- include spec of agent -->
+    <!-- include spec of agent -->
   <include file="$(find IRL_learning_ros)/launch/includes/kobuki_rplidar.launch.xml"/>
+	
 
+  </node>
 </launch>
+
