@@ -13,7 +13,7 @@
 				-->
 	<param name="model_path" 	value="$(find IRL_learning_ros)/model"/>
 	<param name="init_episode" 	value="$(arg data)" />
-	<param name="learning_rate" 	value="0.0005" />
+	<param name="learning_rate" 	value="0.001" />
 	<param name="discount_rate" 	value="0.99" />
 	<param name="replay_memory"	value="10000" />
 	<param name="batch_size" 	value="64" />

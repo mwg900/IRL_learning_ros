@@ -28,7 +28,7 @@ class draw_plot:
         axes_1 = self.cost.gca()
         #cnt = 0
         axes_1.set_xlim([0,cnt+500])
-        axes_1.set_ylim([0,300])
+        axes_1.set_ylim([0,500])
         
         self.score_ax = self.cost.add_subplot(2,1,2)
         self.rate = rospy.Rate(1) # 10hz
@@ -41,7 +41,7 @@ class draw_plot:
         #------------------------------------------------------------------------------ 
         axes = plt.gca()
         axes.set_xlim([0,cnt+500])
-        axes.set_ylim([-500,1200])
+        axes.set_ylim([-200,1500])
         self.li_1, = self.score_ax.plot(x, y1)
         self.li_2, = self.cost_ax.plot(x, y2)
         self.li_3, = self.cost_ax.plot(x, y3)
@@ -76,11 +76,16 @@ class draw_plot:
                         x.append(int(row[0]))
                         y1.append(float(row[1]))
                         y2.append(float(row[2]))
-                        avr = sum(y2)/epi   #cost
-                        avr2 = sum(y1)/epi  #score
+                        #avr = sum(y2)/epi   #cost
+                        #print(y2)
+                        min_cost = min(y2)
                         
-                        y3.append(avr)
-                        y4.append(avr2)
+                        avr = sum(y1[-20:])/20  #최근 20개의 score 평균치
+                        if avr > 1000:
+                            print(row[0])
+                        
+                        y3.append(min_cost)
+                        y4.append(avr)
                         epi+=1
                     episode_count = max(x)
                     
@@ -97,6 +102,7 @@ class draw_plot:
         while not rospy.is_shutdown():
 
             x, y1, y2,cnt,y3, y4 = self.load_file()
+            plt.plot([1,cnt+500],[1000,1000], 'k-', linestyle='--')
             # set the new data
             self.li_1.set_xdata(x)
             self.li_1.set_ydata(y1)
@@ -107,7 +113,6 @@ class draw_plot:
             self.li_3.set_color('red')
             self.li_3.set_xdata(x)
             self.li_3.set_ydata(y3)
-            plt.plot([1,cnt+500],[1000,1000], 'k-', linestyle='--')
             
             self.li_4.set_color('red')
             self.li_4.set_xdata(x)

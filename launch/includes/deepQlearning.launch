@@ -22,7 +22,7 @@
 
   </node>
   <!-- draw plot -->
-  <node name="draw_result"	pkg="IRL_learning_ros"  type="draw_score.py">
+  <node name="draw_result"	pkg="IRL_learning_ros"  type="draw_score.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />
 	<param name="model_path" 	value="$(find IRL_learning_ros)/model/result"/>
   </node>	

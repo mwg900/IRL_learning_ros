@@ -313,7 +313,7 @@ class training:
                     if (len(last_20_episode_reward) == last_20_episode_reward.maxlen):            #20번 이상 시도
                         success_rate = np.mean(last_20_episode_reward) * 100
                         
-                        if success_rate > 50.0:                 #20번 연속 학습의 평균 성공률이 50% 이상이면 학습 종료 후 저장
+                        if success_rate > 70.0:                 #20번 연속 학습의 평균 성공률이 50% 이상이면 학습 종료 후 저장
                             print("Traning Cleared within {} episodes with avg rate {}".format(episode, success_rate))
                             #save data
                             save_path = saver.save(sess, self.model_path, global_step=9999999999)
