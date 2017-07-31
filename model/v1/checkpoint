@@ -1,0 +1,4 @@
+model_checkpoint_path: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-2430"
+all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-2370"
+all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-2400"
+all_model_checkpoint_paths: "/home/moon/catkin_ws/src/IRL_learning_ros/model/v1/driving15v1.ckpt-2430"

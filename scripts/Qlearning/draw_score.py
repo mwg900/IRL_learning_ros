@@ -28,11 +28,11 @@ class draw_plot:
         axes_1 = self.cost.gca()
         #cnt = 0
         axes_1.set_xlim([0,cnt+500])
-        axes_1.set_ylim([0,500])
+        axes_1.set_ylim([0,50])
         
         self.score_ax = self.cost.add_subplot(2,1,2)
         self.rate = rospy.Rate(1) # 10hz
-        
+        self.F = False
         
         
     
@@ -76,13 +76,13 @@ class draw_plot:
                         x.append(int(row[0]))
                         y1.append(float(row[1]))
                         y2.append(float(row[2]))
-                        #avr = sum(y2)/epi   #cost
-                        #print(y2)
-                        min_cost = min(y2)
+                        
+                        min_cost = min(y2[-100:])
                         
                         avr = sum(y1[-20:])/20  #최근 20개의 score 평균치
-                        if avr > 1000:
-                            print(row[0])
+                        #if avr > 1000 and self.F == False:
+                        #    print(row[0])
+                        #    self.F = True
                         
                         y3.append(min_cost)
                         y4.append(avr)
