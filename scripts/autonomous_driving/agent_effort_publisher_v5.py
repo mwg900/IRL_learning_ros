@@ -10,11 +10,11 @@ from geometry_msgs.msg import Twist     #속도제어용 메세지
 from kobuki_msgs.msg import MotorPower  #모터 ON/OFF 메세지
 from sensor_msgs.msg import LaserScan   #라이다 데이터 메세지
 
-STRAIGHT_VEL=0.5
-TURNING_VEL =0.3
+STRAIGHT_VEL=0.8 #0.5
+TURNING_VEL =0.5 #0.3
 
-TURNING_ANG= 0.6
-ROTATE_ANG = 1.0
+TURNING_ANG= 0.7 #0.5
+ROTATE_ANG = 1.5 #1.0
 
 class state_pub:
     def __init__(self): 
