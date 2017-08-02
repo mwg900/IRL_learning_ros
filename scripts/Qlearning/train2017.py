@@ -56,7 +56,7 @@ elif ENVIRONMENT == 'v2':
     INPUT_SIZE =  register.environment.v2['input_size']
     OUTPUT_SIZE = register.environment.v2['output_size']
     POLICY =      register.environment.v2['policy']
-    print('Autonomous_driving training v1 is ready')
+    print('Autonomous_driving training v2 is ready')
     print(register.environment.v1)
     
 else:
@@ -95,20 +95,20 @@ class training:
     def write_batch(self, batch_buffer):
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'w') as csvfile: 
             writer = csv.writer(csvfile, delimiter='\t') 
-            state = batch_buffer[0][0]
+            state = tuple(batch_buffer[0][0])
             action = batch_buffer[0][1]
             reward = batch_buffer[0][2]
-            next_state = batch_buffer[0][3]
+            next_state = tuple(batch_buffer[0][3])
             done = batch_buffer[0][4]
             writer.writerow([state]+[action]+[reward]+[next_state]+[done])
         
         with open(MODEL_PATH+'/'+ENVIRONMENT+'/'+ENVIRONMENT+'batch.csv', 'a') as csvfile: 
             writer = csv.writer(csvfile, delimiter='\t') 
             for row in batch_buffer:
-                state = row[0]
+                state = tuple(row[0])
                 action = row[1]
                 reward = row[2]
-                next_state = row[3]
+                next_state = tuple(row[3])
                 done = row[4]
                 writer.writerow([state]+[action]+[reward]+[next_state]+[done])
 
@@ -132,7 +132,7 @@ class training:
                     state = state.replace("[","")
                     state = state.replace("]","")
                     state = [float(x) for x in state.split(', ')]
-                    tuple(state)
+                    #tuple(state)
                     
                     action = int(row[1])
                     
@@ -144,7 +144,7 @@ class training:
                     next_state = next_state.replace("[","")
                     next_state = next_state.replace("]","")
                     next_state = [float(x) for x in next_state.split(', ')]
-                    tuple(next_state)
+                    #tuple(next_state)
                     
                     done = row[4]
                     if done == 'True':
@@ -153,8 +153,8 @@ class training:
                         done = False
                     
                     buf.append((state, action, reward, next_state, done))
-                   
-                #print(buf)
+            print('Buffer loaded')
+                
         else: 
             buf = deque(maxlen=REPLAY_MEMORY)
         return buf
@@ -215,8 +215,7 @@ class training:
         # store the previous observations in replay memory
         #replay_buffer = deque(maxlen=REPLAY_MEMORY)
         replay_buffer = self.load_batch()       #파일로부터 배치 로드
-        action_buffer = deque(maxlen = ACTION_BUFFER_SIZE)
-        action_buffer = action_buffer.append([3,3,3,3,3])
+        action_buffer = deque([3,3,3,3,3], maxlen = ACTION_BUFFER_SIZE)
         last_20_episode_reward = deque(maxlen=20)
         highest = -9999.
         loss = 10.
@@ -255,7 +254,7 @@ class training:
                     while not done:
                         frame_count += 1
                         state = self.state
-                        state = np.append(state,action_buffer)
+                        state = np.append(state, action_buffer)
                         done = self.done
                         if np.random.rand() < e:
                             action = random.randrange(0,OUTPUT_SIZE)
@@ -270,7 +269,8 @@ class training:
                             rospy.sleep(0.1)                    #0.1초 딜레이
                          
                         next_state = self.state
-                        next_state = np.append(next_state,action_buffer)
+                        
+                        next_state = np.append(next_state, action_buffer)
                         action_buffer.append(action)
                         done = self.done
                         # Reward Policy
@@ -291,8 +291,7 @@ class training:
 
                         if frame_count % TARGET_UPDATE_FREQUENCY == 0:               #네트워크 복사
                             sess.run(copy_ops)
-                        
-                        state = next_state
+
                         reward_sum += reward
                         print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
                     

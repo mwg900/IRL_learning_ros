@@ -45,6 +45,7 @@ class state_pub:
             if (ang == 265) or (ang == 272):
                 self.range_state = tmp_state
                 self.notinf = tmp_state
+                
             if (LaserScan.ranges[ang] != 0) and (LaserScan.ranges[ang] < 0.21):        # 인식 거리가 21cm 미만일 시 (충돌) 완료플래그 셋
                 self.done = True
             ang_cnt +=1
@@ -56,9 +57,14 @@ class state_pub:
                 msg = State()
                 msg.ranges = self.range_state
                 msg.done = self.done  
-                #print(msg.ranges[7])            # 7 = 가제보 : 시계방향 30도 rplidar : 반시계방향 30도 
-                self.pub.publish(msg)
-                self.rate.sleep()
+                if msg.done == True:
+                    self.pub.publish(msg)
+                    rospy.wait_for_service('gazebo/reset_world')    #reset 될 때까지 대기
+                    rospy.wait_for_service('gazebo/set_model_state')    #reset 될 때까지 대기
+                    rospy.sleep(0.2)    #0.2초동안 딜레이
+                    self.done = False
+                else:   
+                    self.pub.publish(msg)
      
 if __name__ == '__main__':
     try:
