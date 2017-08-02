@@ -5,4 +5,9 @@ DQN node 실행
  $ roslaunch IRL_learning_ros deepQlearning.launch
 
 DQN node 실행( ex) model data's episode = 660, environment = v1)
+	v0 : input = 9
+	v1 : input = 11
+	v2 : input = 11+5(action_buffer)
+
 roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v1'
+

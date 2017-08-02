@@ -24,4 +24,9 @@ class environment :
             'policy'        :   'autonomous_driving1'
          }
     
-    
+    #input = 16 (11 + 5(action_buf))
+    v2 = {          
+            'input_size'    :   16,                    # [95, 120, 135, 150, 165, 180, 195, 210, 225, 240, 265] 도의 거리값 + 5개 action buffer
+            'output_size'   :   5,
+            'policy'        :   'autonomous_driving1'
+         }
