@@ -36,7 +36,7 @@ DISCOUNT_RATE = rospy.get_param('/driving_train/discount_rate', default = 0.9)
 REPLAY_MEMORY = rospy.get_param('/driving_train/replay_memory', default = 10000)
 BATCH_SIZE = rospy.get_param('/driving_train/batch_size', default = 64)
 TARGET_UPDATE_FREQUENCY = rospy.get_param('/driving_train/target_update_freq', default = 10)
-ACTION_BUFFER_SIZE = 5
+ACTION_BUFFER_SIZE = 3
 
 if ENVIRONMENT == 'v0':
     INPUT_SIZE =  register.environment.v0['input_size']
@@ -53,7 +53,7 @@ elif ENVIRONMENT == 'v1':
     print(register.environment.v1)
 
 elif ENVIRONMENT == 'v2':
-    INPUT_SIZE =  register.environment.v2['input_size']
+    INPUT_SIZE =  register.environment.v1['input_size'] + ACTION_BUFFER_SIZE # v1 input!!!!!
     OUTPUT_SIZE = register.environment.v2['output_size']
     POLICY =      register.environment.v2['policy']
     print('Autonomous_driving training v2 is ready')
