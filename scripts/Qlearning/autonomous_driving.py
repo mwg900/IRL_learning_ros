@@ -39,12 +39,10 @@ elif ENVIRONMENT == 'v1':
     POLICY =      register.environment.v1['policy']
     print('Autonomous_driving training v1 is ready')
     print(register.environment.v1)
-
+    
 else:
     print("E: you select wrong environment. you must select ex) env:=v1 or env:=v0")
     sys.exit()
-
-
 
 class state_pub:
     def __init__(self): 
@@ -53,7 +51,7 @@ class state_pub:
         #ros topic 구독자 설정 및 콜백함수 정의
         state_sub = rospy.Subscriber("/state", State, self.state_callback, queue_size=100)
         self.pub = rospy.Publisher('/action', Int8, queue_size=10)
-        self.rate = rospy.Rate(5) # 10hz
+        self.rate = rospy.Rate(10) # 10hz
         self.F = False 
         self.load_epi = str(MODEL_DATA)
         self.model_path = MODEL_PATH +"/confirmed_model/"+ENVIRONMENT+"/"+self.load_epi+"/driving15"+ENVIRONMENT+".ckpt"
@@ -97,9 +95,12 @@ class state_pub:
                     self.pub.publish(action)            #액션 값 퍼블리시
                     
                     reward_sum += reward
-                    print("action : {:>5}, current score : {:>5}".format(action, reward_sum))   
+                    print("action : {:>5}, current score : {:>5}".format(action, reward_sum))
+                    #print(state[10])
                     if done == True:
-                        reward_sum = 0                
+                        reward_sum = 0        
+                    
+                    #print(self.state[5])        
                     self.rate.sleep()                   #ROS sleep
             
 if __name__ == '__main__':

@@ -4,15 +4,16 @@
   <arg name = "env" default = "v1"/>
   <arg name = "kobuki" default = "false"/>
 
+<!--  <include file="$(find swarm_lidar)/launch/rplidar.launch"/> -->
+
   <node name="autonomous_driving"	pkg="IRL_learning_ros"  type="autonomous_driving.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />
 	<param name="model_path" 	value="$(find IRL_learning_ros)/model"/>
 	<param name="model_data" 	value="$(arg data)"/>
   </node>
 
-  <node pkg="IRL_learning_ros" type="agent_state_publisher_$(arg env).py" name="agent_state_publisher_$(arg env)">
-	<param name="inversed" 	value="false" />
+  <node pkg="IRL_learning_ros" type="agent_state_publisher_v5.py" name="agent_state_publisher_$(arg env)" output="screen">
+	<param name="inversed" 	value="true"/>
   </node>
-  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>
+  <node pkg="IRL_learning_ros" type="agent_effort_publisher_v5.py" name="effort_publisher"/>  
 </launch>
-

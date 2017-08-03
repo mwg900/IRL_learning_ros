@@ -2,6 +2,7 @@
 <launch>
   <arg name = "data" default = "1620"/>
   <arg name = "env" default = "v1"/>
+  <arg name = "kobuki" default = "false"/>
 
   <node name="autonomous_driving"	pkg="IRL_learning_ros"  type="autonomous_driving.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />
@@ -12,6 +13,6 @@
   <node pkg="IRL_learning_ros" type="agent_state_publisher_$(arg env).py" name="agent_state_publisher_$(arg env)">
 	<param name="inversed" 	value="false" />
   </node>
-  <node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>
+  <!--<node pkg="IRL_learning_ros" type="agent_effort_publisher.py" name="effort_publisher"/>-->
 </launch>
 
