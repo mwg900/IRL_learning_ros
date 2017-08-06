@@ -23,7 +23,7 @@ $ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2'
 	     state_publisher : v1
 	     effort_publisher : v2
 
-$ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2' -->(train2015.py로 변경)
+$ roslaunch IRL_learning_ros deepQlearning.launch env:=v2 -->(train2015.py로 변경)
 	 --> train : 2017
 	     state_publisher : v1
 	     effort_publisher : v2

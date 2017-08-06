@@ -11,9 +11,9 @@
 				-->
 	<param name="model_path" 	value="$(find IRL_learning_ros)/model"/>
 	<param name="init_episode" 	value="$(arg data)" />
-	<param name="learning_rate" 	value="0.001" />
+	<param name="learning_rate" 	value="0.01" />
 	<param name="discount_rate" 	value="0.99" />
-	<param name="replay_memory"	value="10000" />
+	<param name="replay_memory"	value="50000" />
 	<param name="batch_size" 	value="64" />
 	<param name="target_update_freq" 	value="10" />
 
@@ -22,8 +22,8 @@
   <node pkg="IRL_learning_ros" type="agent_state_publisher_v1.py" name="agent_state_publisher_$(arg env)">
 	<param name="inversed" 	value="false" />
   </node>
-  <node pkg="IRL_learning_ros" type="agent_effort_publisher_$(arg env).py" name="effort_publisher"/>  
-
+  <!--<node pkg="IRL_learning_ros" type="agent_effort_publisher_$(arg env).py" name="effort_publisher"/>  -->
+  <node pkg="IRL_learning_ros" type="agent_effort_publisher_v2.py" name="effort_publisher"/>
   <!-- draw plot -->
   <node name="draw_result"	pkg="IRL_learning_ros"  type="draw_score.py" output="screen">
 	<param name="environment" 	value="$(arg env)" />

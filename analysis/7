@@ -1,0 +1,45 @@
+<!---->
+<param name="learning_rate" 	value="0.01" />
+<param name="discount_rate" 	value="0.99" />
+<param name="replay_memory"	value="50000" />
+<param name="batch_size" 	value="64" />
+<param name="target_update_freq" 	value="10" />
+
+policy---------------------------------------
+# Reward Policy
+if action == 0:
+	reward = 5
+elif (action == 1) or (action == 2):
+	reward = -1
+elif (action == 3) or (action == 4):
+	reward = -5
+if done:            # 충돌  
+	reward = -100
+
+layer----------------------------------------
+
+def _build_network(self, h_size, l_rate):
+"""DQN Network architecture (simple MLP)
+Args:
+    h_size (int, optional): Hidden layer dimension
+    l_rate (float, optional): Learning rate
+"""
+with tf.variable_scope(self.net_name):
+    #with tnesorflow 1.2
+    self.d_rate = tf.placeholder(tf.float32)
+    self._X = tf.placeholder(tf.float32, [None, self.input_size], name="input_x")
+    #self._X = tf.layers.batch_normalization(self._X)
+    l1 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
+    l1 = tf.layers.dropout(l1, rate = self.d_rate)
+    l2 = tf.layers.dense(self._X, h_size, activation=tf.nn.relu)
+    l2 = tf.layers.dropout(l2, rate = self.d_rate)
+    l3 = tf.layers.dense(l1, self.output_size)
+    self._Qpred = l3
+
+    self._Y = tf.placeholder(tf.float32, shape=[None, self.output_size])
+    self._loss = tf.losses.mean_squared_error(self._Y, self._Qpred)
+
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
+    self._train = optimizer.minimize(self._loss)
+
+
