@@ -10,7 +10,7 @@ DQN node 실행( ex) model data's episode = 660, environment = v1)
 
 roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v1'
 
-
+=========================================================================================================
 
 컨퍼런스용
 action_buffer를 사용하였을 때와 하지 않았을 때의 스코어 달성 차이 비교
@@ -27,3 +27,5 @@ $ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2' -->(train2
 	 --> train : 2017
 	     state_publisher : v1
 	     effort_publisher : v2
+
+=========================================================================================================
