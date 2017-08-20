@@ -28,8 +28,8 @@ import numpy as np
 
 
 RESOLUTION = 0.05
-WIDTH = 20
-HEIGHT = 20
+WIDTH = int(20/RESOLUTION)
+HEIGHT = int(20/RESOLUTION)
 ORIGIN_X = 10
 ORIGIN_Y = 10
 
@@ -76,10 +76,10 @@ class Map(object):
         self.width = width
         self.height = height
         #self.grid = np.zeros((height, width))           #0의 값으로 배열 [h*w] 생성
-        self.grid = np.zeros((int(height/resolution), int(width/resolution)))
-        self.grid_img = np.zeros((int(height/resolution), int(width/resolution)))
-        #cv2.imshow("grid_img",self.grid_img)
-        #cv2.waitKey(0)
+        self.grid = np.zeros((height,width))
+        self.grid_img = np.zeros((height,width))
+        self.grid_img.fill(-0.01)
+        #print(self.grid_img)
         
     def to_message(self, img):
         """ Return a nav_msgs/OccupancyGrid representation of this map. """
@@ -106,10 +106,10 @@ class Map(object):
         # entries are given a different interpretation (like
         # log-odds).
         
-        print(self.grid.size)
+        #print(self.grid.size)
         
-        flat_grid = self.grid.reshape((self.grid.size,)) * 100      #100을 곱해줌으로써 0~1의 값을 0~100으로 만들어줌. 이는 msg형식에서 필수
-        #flat_grid = img.reshape((img.size,))*100
+        #flat_grid = self.grid.reshape((self.grid.size,)) * 100      #100을 곱해줌으로써 0~1의 값을 0~100으로 만들어줌. 이는 msg형식에서 필수
+        flat_grid = img.reshape((img.size,))*100
         #print(flat_grid)
         grid_msg.data = list(np.round(flat_grid))
         return grid_msg
@@ -177,11 +177,14 @@ class Mapper(object):
         
         
         for ang in range(len(LaserScan.ranges)):
+            center_x = int(ORIGIN_X/RESOLUTION)
+            center_y = int(ORIGIN_Y/RESOLUTION)
             if (LaserScan.ranges[ang] != 0) and (LaserScan.ranges[ang] != 6.0):
                 dist = self.meter_to_pixel(LaserScan.ranges[ang])
                 
-                x = int((ORIGIN_X/RESOLUTION)+dist*math.cos(math.radians(ang)))
-                y = int((ORIGIN_Y/RESOLUTION)+dist*math.sin(math.radians(ang)))
+                x = int(center_x+dist*math.cos(math.radians(ang)))
+                y = int(center_y+dist*math.sin(math.radians(ang)))
+                cv2.line(self.map_img, (center_x,center_y), (x,y), (0))   #라이닝
                 self.map_img[y, x] = 1.0
         cv2.imshow("grid_img",self.map_img)
         #cv2.waitKey(0)

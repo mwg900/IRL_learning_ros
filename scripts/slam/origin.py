@@ -145,7 +145,7 @@ class Mapper(object):
         self._map.grid[0, 2] = .7
         self._map.grid[1, 0] = .5
         self._map.grid[2, 0] = .3
-        self._map.grid[49,49] = 1.0
+        self._map.grid[49,49] = -0.01
 
         # Now that the map is updated, publish it!
         #rospy.loginfo("Scan is processed, publishing updated map.")
