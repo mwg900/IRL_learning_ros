@@ -25,9 +25,10 @@ class state_pub:
         self.notinf = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
         if INVERSED == True:
             self.angle = [88, 60, 45, 30, 15, 0, 345, 330, 315, 300, 272]
+            
+            
     #Laser 토픽 콜백
     def scan_callback(self, LaserScan):
-        
         #topic 복사
         self.done = False
         tmp_state = []
