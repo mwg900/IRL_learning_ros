@@ -29,4 +29,15 @@ $ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2'
 	     state_publisher : v1
 	     effort_publisher : v2
 
-=========================================================================================================
+========================================================================================================= 
+DR SLAM
+(Using OpenCV)
+
+$ roslaunch IRL_learning_ros traning.launch
+
+$ rosrun IRL_learning_ros mapper.py
+
+$ rosrun rosrun kobuki_tf kobuki_tf 
+
+$ rosrun rviz rviz
+

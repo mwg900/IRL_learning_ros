@@ -134,7 +134,7 @@ class Mapper(object):
     
     def __init__(self):
         """ Start the mapper. """
-
+        
         rospy.init_node('mapper')
         self._map = Map()
         self.F = False
@@ -153,8 +153,9 @@ class Mapper(object):
         self._map_pub = rospy.Publisher('map', OccupancyGrid, latch=True, queue_size = 100)
         self._map_data_pub = rospy.Publisher('map_metadata', MapMetaData, latch=True, queue_size = 100)
         self.map_img = self._map.grid_img
+        print("Mapper ready")
         #rospy.spin()
-    
+        
     def meter_to_pixel(self, dist):
         pixel = dist / RESOLUTION
         return pixel
