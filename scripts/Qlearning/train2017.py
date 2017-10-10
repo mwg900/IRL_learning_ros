@@ -266,12 +266,11 @@ class training:
                                 print('error, state is {}'.format(state))
                         if done == False:  
                             self.pub.publish(action)            #액션 값 퍼블리시
-                            rospy.sleep(0.1)                    #0.1초 딜레이
+                            rospy.sleep(0.12)                    #0.1초 딜레이
                          
                         next_state = self.state
-                        
-                        next_state = np.append(next_state, action_buffer)
                         action_buffer.append(action)
+                        next_state = np.append(next_state, action_buffer)
                         done = self.done
                         # Reward Policy
                         try:

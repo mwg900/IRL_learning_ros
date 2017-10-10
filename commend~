@@ -23,12 +23,17 @@ $ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2'-->(train20
 	     state_publisher : v1
 	     effort_publisher : v2
 
+<<<<<<< HEAD
 사용했을 때
 $ roslaunch IRL_learning_ros deepQlearning.launch data:=660 env:='v2' 
+=======
+$ roslaunch IRL_learning_ros deepQlearning.launch env:='v2' -->(train2015.py로 변경)
+>>>>>>> master
 	 --> train : 2017
 	     state_publisher : v1
 	     effort_publisher : v2
 
+<<<<<<< HEAD
 ========================================================================================================= 
 DR SLAM
 (Using OpenCV)
@@ -39,3 +44,6 @@ $ rosrun IRL_learning_ros mapper.py
 
 $ rosrun rviz rviz
 
+=======
+=========================================================================================================
+>>>>>>> master

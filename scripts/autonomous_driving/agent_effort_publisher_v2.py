@@ -51,7 +51,7 @@ class state_pub:
             
         elif action == 1:        #좌회전
             if self.pre_act != 1:
-                self.count = 5
+                self.count = 3
                 self.current_ang = 0.0
             self.count -= 1
             if self.count == 0: 
@@ -65,7 +65,7 @@ class state_pub:
             
         elif action == 2:       #우회전
             if self.pre_act != 2:
-                self.count = 5
+                self.count = 3
                 self.current_ang = 0.0
             self.count -= 1
             if self.count == 0: 
@@ -79,7 +79,7 @@ class state_pub:
 
         elif action == 3:     #제자리 좌회전
             if self.pre_act != 3:
-                self.count = 4
+                self.count = 3
                 self.current_ang = 0.0
             self.count -= 1
             if self.count == 0: 
@@ -92,7 +92,7 @@ class state_pub:
 
         elif action == 4:      #제자리 우회전
             if self.pre_act != 4:
-                self.count = 4
+                self.count = 3
                 self.current_ang = 0.0
             self.count -= 1
             if self.count == 0: 
