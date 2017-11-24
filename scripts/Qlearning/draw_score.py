@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv 
 
-ENVIRONMENT = rospy.get_param('/draw_result/environment', 'v1')
+ENVIRONMENT = rospy.get_param('/draw_result/environment', 'v2')
 MODEL_PATH = rospy.get_param('/draw_result/model_path', default = '/home/moon/catkin_ws/src/IRL_learning_ros/model/result')
 
 class draw_plot:
@@ -27,7 +27,8 @@ class draw_plot:
         self.cost_ax.set_ylabel('cost')
         axes_1 = self.cost.gca()
         #cnt = 0
-        axes_1.set_xlim([0,cnt+500])
+        #axes_1.set_xlim([0,cnt+500])    #컨퍼용 수정
+        axes_1.set_xlim([0,660])
         axes_1.set_ylim([0,50])
         
         self.score_ax = self.cost.add_subplot(2,1,2)
@@ -40,8 +41,9 @@ class draw_plot:
         # Figure 2
         #------------------------------------------------------------------------------ 
         axes = plt.gca()
-        axes.set_xlim([0,cnt+500])
-        axes.set_ylim([-200,1500])
+        #axes.set_xlim([0,cnt+500])
+        axes.set_xlim([0,1000])
+        axes.set_ylim([-200,2000])
         self.li_1, = self.score_ax.plot(x, y1)
         self.li_2, = self.cost_ax.plot(x, y2)
         self.li_3, = self.cost_ax.plot(x, y3)
